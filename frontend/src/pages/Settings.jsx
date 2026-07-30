@@ -13,7 +13,7 @@ const menuItems = [
 export default function Settings() {
   const { user } = useAuth();
   const [name, setName] = useState(user?.name || 'Alex Rivera');
-  const [email, setEmail] = useState(user?.email || 'alex@linkly.app');
+  const [email, setEmail] = useState(user?.email || 'alex@sniply.app');
   const [company, setCompany] = useState('Sniply');
   const [timezone, setTimezone] = useState('America/New_York');
   const [darkMode, setDarkMode] = useState(false);

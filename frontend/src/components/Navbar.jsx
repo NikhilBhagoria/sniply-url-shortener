@@ -11,7 +11,7 @@ export default function Navbar() {
   return (
     <nav className="bg-white border-b border-slate-200">
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
-        <Link to="/" className="font-bold text-lg text-indigo-600">Linkly</Link>
+        <Link to="/" className="font-bold text-lg text-indigo-600">Sniply</Link>
         {user && (
           <div className="flex items-center gap-4 text-sm">
             <span className="text-slate-600 hidden sm:inline">Hi, {user.name}</span>

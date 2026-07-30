@@ -77,7 +77,7 @@ export default function DashboardLayout({ children }) {
             <Link2 className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-slate-900 leading-tight">Linkly</h2>
+            <h2 className="text-base font-bold text-slate-900 leading-tight">Sniply</h2>
             <p className="text-[10px] uppercase font-semibold tracking-[0.2em] text-slate-400">URL Shortener</p>
           </div>
         </div>
@@ -133,7 +133,7 @@ export default function DashboardLayout({ children }) {
                   <Link2 className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-slate-900">Linkly</h2>
+                  <h2 className="text-base font-bold text-slate-900">Sniply</h2>
                   <p className="text-[10px] uppercase font-semibold tracking-[0.2em] text-slate-400">URL Shortener</p>
                 </div>
               </div>
