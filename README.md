@@ -16,6 +16,11 @@ A full-stack **MERN** URL shortener. Users shorten long URLs (with optional cust
 - Per-link analytics via **MongoDB aggregation pipelines**: clicks-over-time timeline, device/browser/referrer breakdowns
 - Account-level summary (total links, total clicks, avg clicks/link, top links)
 - Link list with **keyword search** and **pagination**
+- **Link expiry** — optional expiration date; expired links route to a friendly page
+- **Password-protected links** — bcrypt-hashed passwords with a public unlock flow
+- **QR code** generation per link (downloadable PNG)
+- **Swagger / OpenAPI docs** served at `/api/docs`
+- **Dockerized** — one command spins up MongoDB + API + frontend via Docker Compose
 - Centralized error handling and input validation
 
 ## How the analytics work
@@ -67,6 +72,25 @@ npm run dev               # http://localhost:5173
 
 Register an account, shorten a URL, open the short link in a few browsers/devices, then click **Stats** to watch the analytics populate.
 
+## Run with Docker (one command)
+
+Requires Docker + Docker Compose. From the project root:
+
+```bash
+docker compose up --build
+```
+
+- Frontend → http://localhost:5173
+- API → http://localhost:5000
+- API docs → http://localhost:5000/api/docs
+- MongoDB → localhost:27017 (data persisted in the `mongo-data` volume)
+
+No local Node or MongoDB install needed. Change `JWT_SECRET` in `docker-compose.yml` before deploying.
+
+## API Docs (Swagger)
+
+Interactive OpenAPI documentation is served at **`/api/docs`** — try every endpoint from the browser. The spec lives in `backend/docs/openapi.js`.
+
 ## API Reference
 
 Base URL: `/api/v1` (all `/links` and `/auth/me` routes require `Authorization: Bearer <token>`)
@@ -81,7 +105,9 @@ Base URL: `/api/v1` (all `/links` and `/auth/me` routes require `Authorization: 
 | DELETE | `/links/:id`           | Yes  | Delete a link and its click events                 |
 | GET    | `/links/:id/stats`     | Yes  | Aggregated analytics for one link                  |
 | GET    | `/links/summary`       | Yes  | Account-wide totals + top links                    |
-| GET    | `/:slug`               | No   | Public redirect (logs a click event)               |
+| GET    | `/links/:id/qr`        | Yes  | QR code (PNG data URL) for the short link          |
+| POST   | `/unlock/:slug`        | No   | Verify password on a protected link, return target |
+| GET    | `/:slug`               | No   | Public redirect (expiry + password aware)          |
 
 ### Example
 ```bash
@@ -109,7 +135,6 @@ curl -L http://localhost:5000/demo
 ## Possible Next Steps
 
 - Geo/IP-based location analytics
-- QR code generation per short link
+- Redis caching on the redirect hot path
 - Rate limiting on auth and shorten endpoints
 - Unit/integration tests (Vitest + Supertest / React Testing Library)
-- Link expiry dates and password-protected links

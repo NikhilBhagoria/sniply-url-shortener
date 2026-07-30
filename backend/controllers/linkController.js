@@ -1,23 +1,25 @@
 const { nanoid } = require('nanoid');
 const mongoose = require('mongoose');
+const QRCode = require('qrcode');
 const Link = require('../models/Link');
 const Click = require('../models/Click');
-const { normalizeUrl, isValidHttpUrl } = require('../utils/url');
 
-const INVALID_LINK_MESSAGE = 'This link does not exist or the URL is invalid';
-const isValidObjectId = (value) => mongoose.Types.ObjectId.isValid(value);
+const normalize = (url) => (/^https?:\/\//i.test(url) ? url : `http://${url}`);
+const shortUrl = (slug) => `${process.env.BASE_URL || 'http://localhost:5000'}/${slug}`;
 
-// POST /api/v1/links  { originalUrl, title?, slug? }
+// hide sensitive fields, expose a hasPassword flag
+const publicLink = (doc) => {
+  const o = doc.toObject ? doc.toObject() : doc;
+  delete o.password;
+  o.shortUrl = shortUrl(o.slug);
+  return o;
+};
+
+// POST /api/v1/links  { originalUrl, title?, slug?, expiresAt?, password? }
 exports.create = async (req, res) => {
-  let { originalUrl, title, slug } = req.body;
+  let { originalUrl, title, slug, expiresAt, password } = req.body;
   if (!originalUrl) return res.status(400).json({ msg: 'originalUrl is required' });
-
-  const normalizedUrl = normalizeUrl(originalUrl);
-  if (!isValidHttpUrl(normalizedUrl)) {
-    return res.status(400).json({ msg: 'Please provide a valid URL' });
-  }
-
-  originalUrl = normalizedUrl;
+  originalUrl = normalize(originalUrl.trim());
 
   slug = slug?.trim();
   if (slug) {
@@ -29,8 +31,22 @@ exports.create = async (req, res) => {
     slug = nanoid(7);
   }
 
-  const link = await Link.create({ user: req.userId, originalUrl, title, slug });
-  res.status(201).json(link);
+  if (expiresAt) {
+    const d = new Date(expiresAt);
+    if (isNaN(d) || d.getTime() <= Date.now())
+      return res.status(400).json({ msg: 'expiresAt must be a valid future date' });
+    expiresAt = d;
+  } else {
+    expiresAt = null;
+  }
+
+  const link = new Link({ user: req.userId, originalUrl, title, slug, expiresAt });
+  if (password && password.trim()) {
+    link.password = password.trim();
+    link.isProtected = true;
+  }
+  await link.save();
+  res.status(201).json(publicLink(link));
 };
 
 // GET /api/v1/links?search=&page=&limit=
@@ -48,26 +64,26 @@ exports.list = async (req, res) => {
     Link.find(query).sort('-createdAt').skip((pageNum - 1) * limitNum).limit(limitNum),
     Link.countDocuments(query),
   ]);
-  res.json({ items, total, page: pageNum, pages: Math.ceil(total / limitNum) || 1 });
+  res.json({ items: items.map(publicLink), total, page: pageNum, pages: Math.ceil(total / limitNum) || 1 });
 };
 
 exports.remove = async (req, res) => {
-  if (!isValidObjectId(req.params.id)) {
-    return res.status(404).json({ msg: INVALID_LINK_MESSAGE });
-  }
-
   const link = await Link.findOneAndDelete({ _id: req.params.id, user: req.userId });
   if (!link) return res.status(404).json({ msg: 'Link not found' });
   await Click.deleteMany({ link: link._id });
   res.json({ msg: 'Link deleted' });
 };
 
-// GET /api/v1/links/:id/stats  — aggregation over Click events
-exports.stats = async (req, res) => {
-  if (!isValidObjectId(req.params.id)) {
-    return res.status(404).json({ msg: INVALID_LINK_MESSAGE });
-  }
+// GET /api/v1/links/:id/qr  — QR code (PNG data URL) for the short link
+exports.qr = async (req, res) => {
+  const link = await Link.findOne({ _id: req.params.id, user: req.userId });
+  if (!link) return res.status(404).json({ msg: 'Link not found' });
+  const dataUrl = await QRCode.toDataURL(shortUrl(link.slug), { width: 320, margin: 2 });
+  res.json({ dataUrl, shortUrl: shortUrl(link.slug) });
+};
 
+// GET /api/v1/links/:id/stats
+exports.stats = async (req, res) => {
   const link = await Link.findOne({ _id: req.params.id, user: req.userId });
   if (!link) return res.status(404).json({ msg: 'Link not found' });
   const linkId = new mongoose.Types.ObjectId(link._id);
@@ -77,13 +93,10 @@ exports.stats = async (req, res) => {
     { $group: { _id: `$${field}`, count: { $sum: 1 } } },
     { $sort: { count: -1 } },
   ]);
-
-  // clicks per day for the last 14 days
   const byDay = Click.aggregate([
     { $match: { link: linkId } },
     { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, count: { $sum: 1 } } },
-    { $sort: { _id: 1 } },
-    { $limit: 60 },
+    { $sort: { _id: 1 } }, { $limit: 60 },
   ]);
 
   const [devices, browsers, referrers, timeline] = await Promise.all([
@@ -91,7 +104,7 @@ exports.stats = async (req, res) => {
   ]);
 
   res.json({
-    link,
+    link: publicLink(link),
     totalClicks: link.clicks,
     devices: devices.map((d) => ({ label: d._id, count: d.count })),
     browsers: browsers.map((b) => ({ label: b._id, count: b.count })),
@@ -100,7 +113,6 @@ exports.stats = async (req, res) => {
   });
 };
 
-// Dashboard summary across all of the user's links
 exports.summary = async (req, res) => {
   const userId = new mongoose.Types.ObjectId(req.userId);
   const [agg] = await Link.aggregate([
@@ -111,6 +123,6 @@ exports.summary = async (req, res) => {
   res.json({
     totalLinks: agg?.totalLinks || 0,
     totalClicks: agg?.totalClicks || 0,
-    topLinks: top,
+    topLinks: top.map(publicLink),
   });
 };

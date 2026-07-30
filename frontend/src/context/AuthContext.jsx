@@ -8,6 +8,7 @@ export function AuthProvider({ children }) {
     const raw = localStorage.getItem('user');
     return raw ? JSON.parse(raw) : null;
   });
+  const [search, setSearch] = useState('');
 
   const persist = (token, user) => {
     localStorage.setItem('token', token);
@@ -30,7 +31,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, login, register, logout, search, setSearch }}>
       {children}
     </AuthContext.Provider>
   );

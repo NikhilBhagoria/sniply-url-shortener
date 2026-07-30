@@ -1,4 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-body { @apply bg-slate-50 text-slate-800 antialiased; }
+
+@layer base {
+  html {
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+body { @apply bg-[#f9fafc] text-slate-800 antialiased; }
