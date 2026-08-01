@@ -22,8 +22,8 @@ const client = () => process.env.CLIENT_URL || '';
 // GET /:slug  — public redirect with expiry + password gating
 exports.redirect = async (req, res) => {
   const link = await Link.findOne({ slug: req.params.slug });
-  if (!link) return res.redirect(`${client()}/404`);
-  if (link.isExpired()) return res.redirect(`${client()}/expired`);
+  if (!link) return res.redirect(`${client()}/invalid-link?slug=${req.params.slug}&reason=not-found`);
+  if (link.isExpired()) return res.redirect(`${client()}/invalid-link?slug=${req.params.slug}&reason=expired`);
   if (link.isProtected) return res.redirect(`${client()}/unlock/${link.slug}`);
 
   logClick(link, req);
