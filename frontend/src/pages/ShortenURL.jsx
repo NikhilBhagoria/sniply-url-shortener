@@ -412,7 +412,7 @@ export default function ShortenURL() {
             </div>
 
             {/* Modal Form */}
-            <form onSubmit={create} className="p-6 space-y-4">
+            <form id="shortenForm" onSubmit={create} className="p-6 pb-2 space-y-4">
               {error && (
                 <div className="p-2.5 bg-red-50 border border-red-100 text-red-700 text-xs rounded-xl">
                   {error}
@@ -430,7 +430,10 @@ export default function ShortenURL() {
                   className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-400"
                 />
               </div>
+            </form>
 
+            {/* Advanced Settings (Placed outside form to prevent browser autofill) */}
+            <div className="px-6 pb-6 space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-700">Link Title (Optional)</label>
@@ -439,6 +442,7 @@ export default function ShortenURL() {
                     placeholder="e.g. Work Portfolio"
                     value={form.title}
                     onChange={(e) => setForm({ ...form, title: e.target.value })}
+                    onKeyDown={(e) => e.key === 'Enter' && document.getElementById('shortenForm').requestSubmit()}
                     className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-400"
                   />
                 </div>
@@ -449,6 +453,7 @@ export default function ShortenURL() {
                     placeholder="e.g. portfolio"
                     value={form.slug}
                     onChange={(e) => setForm({ ...form, slug: e.target.value })}
+                    onKeyDown={(e) => e.key === 'Enter' && document.getElementById('shortenForm').requestSubmit()}
                     className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-400"
                   />
                 </div>
@@ -458,18 +463,21 @@ export default function ShortenURL() {
                     type="datetime-local"
                     value={form.expiresAt}
                     onChange={(e) => setForm({ ...form, expiresAt: e.target.value })}
+                    onKeyDown={(e) => e.key === 'Enter' && document.getElementById('shortenForm').requestSubmit()}
                     className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-400"
                   />
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-700">Password Protection (Optional)</label>
-                  <input
-                    type="password"
-                    placeholder="Enter key password"
-                    value={form.password}
-                    onChange={(e) => setForm({ ...form, password: e.target.value })}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-400"
-                  />
+                <input
+                  type="text"
+                  placeholder="Enter key password"
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  onKeyDown={(e) => e.key === 'Enter' && document.getElementById('shortenForm').requestSubmit()}
+                  style={{ WebkitTextSecurity: 'disc' }}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-400"
+                />
                 </div>
               </div>
 
@@ -484,12 +492,13 @@ export default function ShortenURL() {
                 </button>
                 <button
                   type="submit"
+                  form="shortenForm"
                   className="px-4 py-2 rounded-lg bg-[#1e75ff] hover:bg-[#0a65ff] text-white text-xs font-semibold shadow-sm transition"
                 >
                   Shorten URL
                 </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
