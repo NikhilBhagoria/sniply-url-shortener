@@ -7,7 +7,6 @@ export default function NotFound() {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-[#f3f7fd] via-[#f7faff] to-[#f3f7fd] flex flex-col items-center justify-center p-6 gap-6 select-none font-sans">
-      
       {/* 1. Logo Pill */}
       <div className="flex items-center gap-3 bg-white px-5 py-2.5 rounded-full border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.03)] transition-transform duration-200 hover:scale-105">
         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#1e75ff] text-white shadow-md shadow-blue-100">
@@ -21,7 +20,6 @@ export default function NotFound() {
 
       {/* 2. Main 404 Card */}
       <div className="w-full max-w-[600px] bg-white rounded-[32px] md:rounded-[40px] p-8 md:p-12 flex flex-col items-center text-center shadow-[0_20px_50px_rgba(28,95,255,0.04)] border border-slate-100/50">
-        
         {/* Illustration inside glow background */}
         <div className="relative flex items-center justify-center w-36 h-36 rounded-full bg-gradient-to-tr from-[#edf2ff] to-[#f6f9ff] shadow-[inset_0_4px_12px_rgba(30,117,255,0.03)] mb-6">
           <div className="w-24 h-24 bg-white rounded-[24px] shadow-[0_12px_28px_rgba(30,117,255,0.06)] border border-blue-50/50 flex items-center justify-center">
