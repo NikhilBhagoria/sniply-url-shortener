@@ -134,58 +134,63 @@ export default function Dashboard() {
               </button>
               <span className="text-slate-400">No credit card required. Free tier includes 500 links.</span>
             </div>
-
-            {/* Advanced Settings Fields */}
-            {showAdvanced && (
-              <div className="grid gap-4 sm:grid-cols-2 bg-white/60 backdrop-blur-sm border border-slate-200/50 p-6 rounded-2xl animate-in slide-in-from-top-3 duration-200">
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-slate-700">Link Title (Optional)</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. My Website Portals"
-                    value={form.title}
-                    onChange={(e) => setForm({ ...form, title: e.target.value })}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-700 outline-none focus:border-blue-400"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-slate-700">Custom Alias / Slug</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. customalias"
-                    value={form.slug}
-                    onChange={(e) => setForm({ ...form, slug: e.target.value })}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-700 outline-none focus:border-blue-400"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1">
-                    <Calendar className="h-3 w-3 text-slate-400" />
-                    <span>Expiry Date</span>
-                  </label>
-                  <input
-                    type="datetime-local"
-                    value={form.expiresAt}
-                    onChange={(e) => setForm({ ...form, expiresAt: e.target.value })}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-700 outline-none focus:border-blue-400"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1">
-                    <Lock className="h-3 w-3 text-slate-400" />
-                    <span>Password protection</span>
-                  </label>
-                  <input
-                    type="password"
-                    placeholder="Enter key password"
-                    value={form.password}
-                    onChange={(e) => setForm({ ...form, password: e.target.value })}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-700 outline-none focus:border-blue-400"
-                  />
-                </div>
-              </div>
-            )}
           </form>
+
+          {/* Advanced Settings Fields (Moved outside form to prevent browser autofill) */}
+          {showAdvanced && (
+            <div className="grid gap-4 sm:grid-cols-2 bg-white/60 backdrop-blur-sm border border-slate-200/50 p-6 rounded-2xl animate-in slide-in-from-top-3 duration-200 mt-4">
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-700">Link Title (Optional)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. My Website Portals"
+                  value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  onKeyDown={(e) => e.key === 'Enter' && create(e)}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-700 outline-none focus:border-blue-400"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-700">Custom Alias / Slug</label>
+                <input
+                  type="text"
+                  placeholder="e.g. customalias"
+                  value={form.slug}
+                  onChange={(e) => setForm({ ...form, slug: e.target.value })}
+                  onKeyDown={(e) => e.key === 'Enter' && create(e)}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-700 outline-none focus:border-blue-400"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1">
+                  <Calendar className="h-3 w-3 text-slate-400" />
+                  <span>Expiry Date</span>
+                </label>
+                <input
+                  type="datetime-local"
+                  value={form.expiresAt}
+                  onChange={(e) => setForm({ ...form, expiresAt: e.target.value })}
+                  onKeyDown={(e) => e.key === 'Enter' && create(e)}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-700 outline-none focus:border-blue-400"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1">
+                  <Lock className="h-3 w-3 text-slate-400" />
+                  <span>Password protection</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter key password"
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  onKeyDown={(e) => e.key === 'Enter' && create(e)}
+                  style={{ WebkitTextSecurity: 'disc' }}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-700 outline-none focus:border-blue-400"
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
