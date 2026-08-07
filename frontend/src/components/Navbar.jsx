@@ -6,7 +6,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const handleLogout = () => { logout(); navigate('/login'); };
 
-  if (!['/login', '/register'].includes(location.pathname) || user) return null;
+  if (['/login', '/register'].includes(location.pathname) || user) return null;
 
   return (
     <nav className="bg-white border-b border-slate-200">
