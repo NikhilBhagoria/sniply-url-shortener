@@ -19,7 +19,9 @@ import {
   Sparkles,
   LogOut,
   Menu,
-  X
+  X,
+  AlertTriangle,
+  Shield
 } from 'lucide-react';
 
 const sidebarLinks = [
@@ -42,6 +44,59 @@ export default function DashboardLayout({ children }) {
   const [darkMode, setDarkMode] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      title: 'Your link lnk.ly/xY7z9Q reached 1,000 clicks',
+      description: 'Traffic is up 18% compared to yesterday.',
+      time: '2m ago',
+      unread: true,
+      type: 'link',
+    },
+    {
+      id: 2,
+      title: 'New team member joined',
+      description: 'Maya Patel accepted the invite and joined Workspace.',
+      time: '1h ago',
+      unread: false,
+      type: 'user',
+    },
+    {
+      id: 3,
+      title: 'API rate limit at 80%',
+      description: 'Consider upgrading your plan to avoid throttling.',
+      time: '1d ago',
+      unread: true,
+      type: 'alert',
+    },
+    {
+      id: 4,
+      title: 'Weekly analytics report is ready',
+      description: 'Open the dashboard to review top-performing links.',
+      time: '2d ago',
+      unread: false,
+      type: 'chart',
+    },
+    {
+      id: 5,
+      title: 'Security scan completed',
+      description: 'No vulnerabilities detected in your workspace.',
+      time: '3d ago',
+      unread: false,
+      type: 'security',
+    },
+  ]);
+
+  const markAllAsRead = () => {
+    setNotifications(notifications.map(n => ({ ...n, unread: false })));
+  };
+
+  const toggleRead = (id) => {
+    setNotifications(notifications.map(n => n.id === id ? { ...n, unread: !n.unread } : n));
+  };
+
+  const unreadCount = notifications.filter(n => n.unread).length;
 
   const handleLogout = () => {
     logout();
@@ -231,11 +286,100 @@ export default function DashboardLayout({ children }) {
               </button>
             </div>
 
-            {/* Notifications Bell */}
-            <button className="relative p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-50 rounded-full transition-all duration-150">
-              <Bell className="h-5 w-5" />
-              <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-[#ff4a4a] border-2 border-white"></span>
-            </button>
+            {/* Notifications Bell & Dropdown */}
+            <div className="relative">
+              <button 
+                onClick={() => { setNotificationsOpen(!notificationsOpen); setProfileOpen(false); }}
+                className="relative h-10 w-10 flex items-center justify-center bg-white text-slate-500 hover:text-slate-700 rounded-full border border-slate-200/80 shadow-sm hover:shadow transition-all duration-150"
+              >
+                <Bell className="h-4.5 w-4.5" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 h-3 w-3 rounded-full bg-[#ff4a4a] border-2 border-white"></span>
+                )}
+              </button>
+
+              {notificationsOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setNotificationsOpen(false)} />
+                  <div className="absolute right-0 mt-3 w-96 bg-white border border-slate-200 rounded-3xl shadow-xl p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                    {/* Header */}
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                      <span className="text-sm font-bold text-slate-900">Notifications</span>
+                      <button 
+                        onClick={markAllAsRead}
+                        className="text-xs font-bold text-[#1e75ff] hover:underline"
+                      >
+                        Mark all as read
+                      </button>
+                    </div>
+
+                    {/* Body List */}
+                    <div className="mt-3 space-y-2 max-h-[360px] overflow-y-auto pr-1">
+                      {notifications.map((n) => {
+                        let iconBg = '';
+                        let iconColor = '';
+                        let Icon = null;
+
+                        if (n.type === 'link') {
+                          iconBg = 'bg-blue-50 border border-blue-100/50';
+                          iconColor = 'text-[#1e75ff]';
+                          Icon = Link2;
+                        } else if (n.type === 'user') {
+                          iconBg = 'bg-emerald-50 border border-emerald-100/50';
+                          iconColor = 'text-emerald-600';
+                          Icon = Users2;
+                        } else if (n.type === 'alert') {
+                          iconBg = 'bg-amber-50 border border-amber-100/50';
+                          iconColor = 'text-amber-600';
+                          Icon = AlertTriangle;
+                        } else if (n.type === 'chart') {
+                          iconBg = 'bg-indigo-50 border border-indigo-100/50';
+                          iconColor = 'text-indigo-600';
+                          Icon = BarChart3;
+                        } else {
+                          iconBg = 'bg-teal-50 border border-teal-100/50';
+                          iconColor = 'text-teal-600';
+                          Icon = Shield;
+                        }
+
+                        return (
+                          <div 
+                            key={n.id}
+                            onClick={() => toggleRead(n.id)}
+                            className={`flex gap-3 items-start p-3 rounded-2xl cursor-pointer transition-all duration-150 ${
+                              n.unread 
+                                ? 'bg-[#edf3ff] hover:bg-[#e1ecff] border border-blue-100/40' 
+                                : 'hover:bg-slate-50 border border-transparent'
+                            }`}
+                          >
+                            <div className={`h-9 w-9 rounded-full flex items-center justify-center shrink-0 ${iconBg} ${iconColor}`}>
+                              <Icon className="h-4 w-4" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-2">
+                                <h5 className="text-xs font-bold text-slate-900 leading-snug">{n.title}</h5>
+                                <div className="flex items-center gap-1.5 shrink-0 text-[10px] text-slate-400 font-semibold mt-0.5">
+                                  {n.unread && <span className="h-1.5 w-1.5 rounded-full bg-[#1e75ff]" />}
+                                  <span>{n.time}</span>
+                                </div>
+                              </div>
+                              <p className="text-[11px] text-slate-500 leading-normal mt-0.5">{n.description}</p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Footer */}
+                    <div className="mt-4 pt-3 border-t border-slate-100 text-center">
+                      <button className="text-xs font-bold text-[#1e75ff] hover:underline">
+                        View all notifications
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
 
             {/* Profile Dropdown */}
             <div className="relative">
