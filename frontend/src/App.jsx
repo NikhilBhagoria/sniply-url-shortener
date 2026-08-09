@@ -15,6 +15,7 @@ import Api from './pages/Api';
 import Unlock from './pages/Unlock';
 import Message from './pages/Message';
 import NotFound from './pages/NotFound';
+import InvalidLink from './pages/InvalidLink';
 
 export default function App() {
   return (
@@ -35,6 +36,7 @@ export default function App() {
           <Route path="/links/:id" element={<ProtectedRoute><DashboardLayout><LinkStats /></DashboardLayout></ProtectedRoute>} />
           
           <Route path="/unlock/:slug" element={<Unlock />} />
+          <Route path="/invalid-link" element={<InvalidLink />} />
           <Route path="/expired" element={<Message emoji="⌛" title="Link expired" text="This short link is no longer active." />} />
           <Route path="/404" element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
