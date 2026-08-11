@@ -78,8 +78,48 @@ exports.remove = async (req, res) => {
 exports.qr = async (req, res) => {
   const link = await Link.findOne({ _id: req.params.id, user: req.userId });
   if (!link) return res.status(404).json({ msg: 'Link not found' });
-  const dataUrl = await QRCode.toDataURL(shortUrl(link.slug), { width: 320, margin: 2 });
-  res.json({ dataUrl, shortUrl: shortUrl(link.slug) });
+
+  const { dark, light, margin, width } = req.query;
+  
+  let darkColor = '#000000';
+  let lightColor = '#ffffff';
+  
+  if (dark) {
+    const hexRegex = /^#?([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
+    if (hexRegex.test(dark)) {
+      darkColor = dark.startsWith('#') ? dark : `#${dark}`;
+    }
+  }
+  
+  if (light) {
+    const hexRegex = /^#?([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
+    if (hexRegex.test(light)) {
+      lightColor = light.startsWith('#') ? light : `#${light}`;
+    }
+  }
+
+  const qrMargin = margin !== undefined ? Math.max(0, Math.min(10, parseInt(margin, 10) || 0)) : 2;
+  const qrWidth = width !== undefined ? Math.max(100, Math.min(1000, parseInt(width, 10) || 320)) : 320;
+
+  try {
+    const dataUrl = await QRCode.toDataURL(shortUrl(link.slug), {
+      width: qrWidth,
+      margin: qrMargin,
+      color: {
+        dark: darkColor,
+        light: lightColor,
+      }
+    });
+    res.json({ dataUrl, shortUrl: shortUrl(link.slug) });
+  } catch (err) {
+    // Graceful fallback to default black & white
+    const dataUrl = await QRCode.toDataURL(shortUrl(link.slug), {
+      width: 320,
+      margin: 2,
+      color: { dark: '#000000', light: '#ffffff' }
+    });
+    res.json({ dataUrl, shortUrl: shortUrl(link.slug) });
+  }
 };
 
 // GET /api/v1/links/:id/stats
