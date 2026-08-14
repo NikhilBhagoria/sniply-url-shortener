@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import {
   LayoutDashboard,
   Link2,
@@ -41,7 +42,7 @@ export default function DashboardLayout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
   
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode, setDarkMode } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -123,17 +124,17 @@ export default function DashboardLayout({ children }) {
   };
 
   return (
-    <div className={`min-h-screen flex bg-[#f9fafc] text-slate-800 ${darkMode ? 'dark bg-slate-950 text-slate-100' : ''}`}>
+    <div className={`min-h-screen flex text-slate-800 ${darkMode ? 'dark bg-[#0b0f19] text-slate-100' : 'bg-[#f9fafc]'}`}>
       {/* Sidebar - Desktop */}
-      <aside className="hidden lg:flex flex-col w-72 bg-white border-r border-slate-200 p-6 shrink-0 h-screen sticky top-0">
+      <aside className="hidden lg:flex flex-col w-72 bg-white dark:bg-[#0f172a] border-r border-slate-200 dark:border-slate-800/60 p-6 shrink-0 h-screen sticky top-0">
         {/* Logo */}
         <div className="flex items-center gap-3 mb-8">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1e75ff] text-white">
             <Link2 className="h-5 w-5" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-slate-900 leading-tight">Sniply</h2>
-            <p className="text-[10px] uppercase font-semibold tracking-[0.2em] text-slate-400">URL Shortener</p>
+            <h2 className="text-base font-bold text-slate-900 dark:text-white leading-tight">Sniply</h2>
+            <p className="text-[10px] uppercase font-semibold tracking-[0.2em] text-slate-400 dark:text-slate-500">URL Shortener</p>
           </div>
         </div>
 
@@ -149,8 +150,8 @@ export default function DashboardLayout({ children }) {
                 to={item.to}
                 className={`flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 group ${
                   isActive
-                    ? 'bg-[#1e75ff] text-white shadow-md shadow-blue-100'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                    ? 'bg-[#1e75ff] text-white shadow-md shadow-blue-100 dark:shadow-none'
+                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-450 dark:hover:bg-slate-800/40 dark:hover:text-white'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -163,13 +164,13 @@ export default function DashboardLayout({ children }) {
         </nav>
 
         {/* Upgrade to Pro Card */}
-        <div className="mt-auto bg-[#f4f7ff] border border-blue-50 rounded-2xl p-5 relative overflow-hidden">
+        <div className="mt-auto bg-[#f4f7ff] border border-blue-50 dark:bg-[#1e293b]/20 dark:border-slate-800 rounded-2xl p-5 relative overflow-hidden">
           <div className="absolute -right-3 -top-3 w-12 h-12 bg-blue-100 rounded-full opacity-30 pointer-events-none"></div>
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="h-4 w-4 text-[#1e75ff]" />
-            <span className="text-xs font-bold text-slate-900">Upgrade to Pro</span>
+            <span className="text-xs font-bold text-slate-900 dark:text-white">Upgrade to Pro</span>
           </div>
-          <p className="text-[11px] leading-relaxed text-slate-500">
+          <p className="text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">
             Unlock advanced analytics, custom domains, and team controls.
           </p>
           <button className="mt-4 w-full rounded-xl bg-[#1e75ff] hover:bg-[#0a65ff] text-white py-2 text-xs font-semibold shadow-sm transition-colors duration-150">
@@ -239,11 +240,11 @@ export default function DashboardLayout({ children }) {
       {/* Main Content Pane */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header / Topbar */}
-        <header className="sticky top-0 z-30 h-20 bg-white border-b border-slate-200 px-6 flex items-center justify-between">
+        <header className="sticky top-0 z-30 h-20 bg-white dark:bg-[#0f172a] border-b border-slate-200 dark:border-slate-800/60 px-6 flex items-center justify-between">
           <div className="flex items-center gap-4 flex-1">
             {/* Mobile Hamburger menu toggle */}
-            <button onClick={() => setMobileMenuOpen(true)} className="lg:hidden p-2 rounded-xl border border-slate-200 hover:bg-slate-50">
-              <Menu className="h-5 w-5 text-slate-600" />
+            <button onClick={() => setMobileMenuOpen(true)} className="lg:hidden p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800">
+              <Menu className="h-5 w-5 text-slate-600 dark:text-slate-300" />
             </button>
 
             {/* Search links or static context input */}
@@ -259,10 +260,10 @@ export default function DashboardLayout({ children }) {
                   }
                 }}
                 disabled={location.pathname !== '/' && location.pathname !== '/shorten'}
-                className={`w-full rounded-full border border-slate-200 bg-[#f9fafc] py-2.5 pl-11 pr-4 text-sm text-slate-700 outline-none transition-all duration-150 ${
+                className={`w-full rounded-full border border-slate-200 dark:border-slate-800 bg-[#f9fafc] dark:bg-[#1e293b] py-2.5 pl-11 pr-4 text-sm text-slate-700 dark:text-slate-105 outline-none transition-all duration-150 ${
                   (location.pathname === '/' || location.pathname === '/shorten') 
-                    ? 'focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-50 cursor-text' 
-                    : 'bg-slate-50 cursor-not-allowed opacity-80'
+                    ? 'focus:border-blue-400 focus:bg-white dark:focus:bg-[#1e293b] focus:ring-4 focus:ring-blue-50 cursor-text' 
+                    : 'bg-slate-50 dark:bg-slate-800/40 cursor-not-allowed opacity-80'
                 }`}
               />
             </div>
@@ -271,16 +272,16 @@ export default function DashboardLayout({ children }) {
           {/* Right Header icons & user details */}
           <div className="flex items-center gap-6">
             {/* Light/Dark mode switcher */}
-            <div className="flex items-center bg-[#f0f2f5] rounded-full p-1 border border-slate-100">
+            <div className="flex items-center bg-[#f0f2f5] dark:bg-[#1e293b] rounded-full p-1 border border-slate-100 dark:border-slate-800">
               <button 
                 onClick={() => setDarkMode(false)}
-                className={`p-1.5 rounded-full transition-all duration-150 ${!darkMode ? 'bg-white text-[#1e75ff] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                className={`p-1.5 rounded-full transition-all duration-150 ${!darkMode ? 'bg-white dark:bg-[#0f172a] text-[#1e75ff] shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-350'}`}
               >
                 <Sun className="h-3.5 w-3.5" />
               </button>
               <button 
                 onClick={() => setDarkMode(true)}
-                className={`p-1.5 rounded-full transition-all duration-150 ${darkMode ? 'bg-white text-[#1e75ff] shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                className={`p-1.5 rounded-full transition-all duration-150 ${darkMode ? 'bg-white dark:bg-[#0f172a] text-[#1e75ff] shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-350'}`}
               >
                 <Moon className="h-3.5 w-3.5" />
               </button>
@@ -301,10 +302,10 @@ export default function DashboardLayout({ children }) {
               {notificationsOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setNotificationsOpen(false)} />
-                  <div className="absolute right-0 mt-3 w-96 bg-white border border-slate-200 rounded-3xl shadow-xl p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="absolute right-0 mt-3 w-96 bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-xl p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                     {/* Header */}
-                    <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                      <span className="text-sm font-bold text-slate-900">Notifications</span>
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                      <span className="text-sm font-bold text-slate-900 dark:text-white">Notifications</span>
                       <button 
                         onClick={markAllAsRead}
                         className="text-xs font-bold text-[#1e75ff] hover:underline"
@@ -348,8 +349,8 @@ export default function DashboardLayout({ children }) {
                             onClick={() => toggleRead(n.id)}
                             className={`flex gap-3 items-start p-3 rounded-2xl cursor-pointer transition-all duration-150 ${
                               n.unread 
-                                ? 'bg-[#edf3ff] hover:bg-[#e1ecff] border border-blue-100/40' 
-                                : 'hover:bg-slate-50 border border-transparent'
+                                ? 'bg-[#edf3ff] dark:bg-[#1e293b]/40 hover:bg-[#e1ecff] dark:hover:bg-[#1e293b]/60 border border-blue-100/40 dark:border-blue-900/30' 
+                                : 'hover:bg-slate-50 dark:hover:bg-slate-800/40 border border-transparent'
                             }`}
                           >
                             <div className={`h-9 w-9 rounded-full flex items-center justify-center shrink-0 ${iconBg} ${iconColor}`}>
@@ -357,13 +358,13 @@ export default function DashboardLayout({ children }) {
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-2">
-                                <h5 className="text-xs font-bold text-slate-900 leading-snug">{n.title}</h5>
-                                <div className="flex items-center gap-1.5 shrink-0 text-[10px] text-slate-400 font-semibold mt-0.5">
+                                <h5 className="text-xs font-bold text-slate-900 dark:text-white leading-snug">{n.title}</h5>
+                                <div className="flex items-center gap-1.5 shrink-0 text-[10px] text-slate-400 dark:text-slate-500 font-semibold mt-0.5">
                                   {n.unread && <span className="h-1.5 w-1.5 rounded-full bg-[#1e75ff]" />}
                                   <span>{n.time}</span>
                                 </div>
                               </div>
-                              <p className="text-[11px] text-slate-500 leading-normal mt-0.5">{n.description}</p>
+                              <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal mt-0.5">{n.description}</p>
                             </div>
                           </div>
                         );
@@ -371,7 +372,7 @@ export default function DashboardLayout({ children }) {
                     </div>
 
                     {/* Footer */}
-                    <div className="mt-4 pt-3 border-t border-slate-100 text-center">
+                    <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-center">
                       <button className="text-xs font-bold text-[#1e75ff] hover:underline">
                         View all notifications
                       </button>
@@ -385,36 +386,36 @@ export default function DashboardLayout({ children }) {
             <div className="relative">
               <button 
                 onClick={() => setProfileOpen(!profileOpen)}
-                className="flex items-center gap-3 p-1 rounded-xl hover:bg-slate-50 transition-all duration-150"
+                className="flex items-center gap-3 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all duration-150"
               >
                 <img
                   src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=256&auto=format&fit=crop"
                   alt="Profile"
-                  className="h-10 w-10 rounded-full object-cover border-2 border-slate-100"
+                  className="h-10 w-10 rounded-full object-cover border-2 border-slate-100 dark:border-slate-850"
                 />
                 <div className="text-left hidden md:block">
-                  <h4 className="text-sm font-semibold text-slate-900 leading-none">{user?.name || 'Alex Rivera'}</h4>
-                  <span className="text-[10px] text-slate-500 font-medium mt-0.5 block">Pro plan</span>
+                  <h4 className="text-sm font-semibold text-slate-900 dark:text-white leading-none">{user?.name || 'Alex Rivera'}</h4>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5 block">Pro plan</span>
                 </div>
                 <ChevronDown className="h-4 w-4 text-slate-400 hidden md:block" />
               </button>
 
               {profileOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-lg py-1 z-50 animate-in fade-in duration-100">
-                  <div className="px-4 py-2 border-b border-slate-100 lg:hidden">
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg py-1 z-50 animate-in fade-in duration-100">
+                  <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-850 lg:hidden">
                     <p className="text-xs text-slate-400">Signed in as</p>
-                    <p className="text-sm font-medium text-slate-800 truncate">{user?.email}</p>
+                    <p className="text-sm font-medium text-slate-800 dark:text-white truncate">{user?.email}</p>
                   </div>
                   <button 
                     onClick={() => { setProfileOpen(false); navigate('/settings'); }}
-                    className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                    className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/45 flex items-center gap-2"
                   >
                     <Settings className="h-4 w-4 text-slate-400" />
                     <span>Settings</span>
                   </button>
                   <button 
                     onClick={() => { setProfileOpen(false); handleLogout(); }}
-                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 border-t border-slate-100"
+                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 flex items-center gap-2 border-t border-slate-100 dark:border-slate-850"
                   >
                     <LogOut className="h-4 w-4 text-red-500" />
                     <span>Logout</span>
