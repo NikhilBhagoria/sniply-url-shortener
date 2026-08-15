@@ -8,4 +8,4 @@
   }
 }
 
-body { @apply bg-[#f9fafc] text-slate-800 antialiased; }
+body { @apply bg-[#f9fafc] text-slate-800 antialiased dark:bg-[#0b0f19] dark:text-slate-100; }
