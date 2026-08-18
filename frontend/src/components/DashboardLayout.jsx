@@ -151,7 +151,7 @@ export default function DashboardLayout({ children }) {
                 className={`flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 group ${
                   isActive
                     ? 'bg-[#1e75ff] text-white shadow-md shadow-blue-100 dark:shadow-none'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-450 dark:hover:bg-slate-800/40 dark:hover:text-white'
+                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/40 dark:hover:text-white'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -260,7 +260,7 @@ export default function DashboardLayout({ children }) {
                   }
                 }}
                 disabled={location.pathname !== '/' && location.pathname !== '/shorten'}
-                className={`w-full rounded-full border border-slate-200 dark:border-slate-800 bg-[#f9fafc] dark:bg-[#1e293b] py-2.5 pl-11 pr-4 text-sm text-slate-700 dark:text-slate-105 outline-none transition-all duration-150 ${
+                className={`w-full rounded-full border border-slate-200 dark:border-slate-800 bg-[#f9fafc] dark:bg-[#1e293b] py-2.5 pl-11 pr-4 text-sm text-slate-700 dark:text-slate-100 outline-none transition-all duration-150 ${
                   (location.pathname === '/' || location.pathname === '/shorten') 
                     ? 'focus:border-blue-400 focus:bg-white dark:focus:bg-[#1e293b] focus:ring-4 focus:ring-blue-50 cursor-text' 
                     : 'bg-slate-50 dark:bg-slate-800/40 cursor-not-allowed opacity-80'
@@ -275,13 +275,13 @@ export default function DashboardLayout({ children }) {
             <div className="flex items-center bg-[#f0f2f5] dark:bg-[#1e293b] rounded-full p-1 border border-slate-100 dark:border-slate-800">
               <button 
                 onClick={() => setDarkMode(false)}
-                className={`p-1.5 rounded-full transition-all duration-150 ${!darkMode ? 'bg-white dark:bg-[#0f172a] text-[#1e75ff] shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-350'}`}
+                className={`p-1.5 rounded-full transition-all duration-150 ${!darkMode ? 'bg-white dark:bg-[#0f172a] text-[#1e75ff] shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
               >
                 <Sun className="h-3.5 w-3.5" />
               </button>
               <button 
                 onClick={() => setDarkMode(true)}
-                className={`p-1.5 rounded-full transition-all duration-150 ${darkMode ? 'bg-white dark:bg-[#0f172a] text-[#1e75ff] shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-350'}`}
+                className={`p-1.5 rounded-full transition-all duration-150 ${darkMode ? 'bg-white dark:bg-[#0f172a] text-[#1e75ff] shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
               >
                 <Moon className="h-3.5 w-3.5" />
               </button>
@@ -391,7 +391,7 @@ export default function DashboardLayout({ children }) {
                 <img
                   src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=256&auto=format&fit=crop"
                   alt="Profile"
-                  className="h-10 w-10 rounded-full object-cover border-2 border-slate-100 dark:border-slate-850"
+                  className="h-10 w-10 rounded-full object-cover border-2 border-slate-100 dark:border-slate-800"
                 />
                 <div className="text-left hidden md:block">
                   <h4 className="text-sm font-semibold text-slate-900 dark:text-white leading-none">{user?.name || 'Alex Rivera'}</h4>
@@ -402,7 +402,7 @@ export default function DashboardLayout({ children }) {
 
               {profileOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg py-1 z-50 animate-in fade-in duration-100">
-                  <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-850 lg:hidden">
+                  <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-800 lg:hidden">
                     <p className="text-xs text-slate-400">Signed in as</p>
                     <p className="text-sm font-medium text-slate-800 dark:text-white truncate">{user?.email}</p>
                   </div>
@@ -415,7 +415,7 @@ export default function DashboardLayout({ children }) {
                   </button>
                   <button 
                     onClick={() => { setProfileOpen(false); handleLogout(); }}
-                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 flex items-center gap-2 border-t border-slate-100 dark:border-slate-850"
+                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 flex items-center gap-2 border-t border-slate-100 dark:border-slate-800"
                   >
                     <LogOut className="h-4 w-4 text-red-500" />
                     <span>Logout</span>
