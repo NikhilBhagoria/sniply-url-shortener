@@ -5,55 +5,55 @@ export default function Analytics() {
     <div className="p-6 max-w-7xl mx-auto space-y-6 animate-in fade-in duration-300">
       {/* Header */}
       <div>
-        <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-slate-400">Workspace / Analytics</span>
-        <h1 className="text-3xl font-extrabold text-slate-900 mt-1">Analytics</h1>
-        <p className="text-slate-500 text-xs mt-0.5">View performance metrics, traffic trends, and link activity.</p>
+        <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#1e75ff] dark:text-[#1e75ff]">Workspace / Analytics</span>
+        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">Analytics</h1>
+        <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">View performance metrics, traffic trends, and link activity.</p>
       </div>
 
       {/* Overview Cards */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between h-40">
+        <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col justify-between h-40">
           <div className="flex items-center justify-between">
-            <div className="h-10 w-10 bg-blue-50 rounded-xl flex items-center justify-center text-[#1e75ff]">
+            <div className="h-10 w-10 bg-blue-50 dark:bg-blue-950/20 rounded-xl flex items-center justify-center text-[#1e75ff]">
               <TrendingUp className="h-5 w-5" />
             </div>
           </div>
           <div>
-            <h3 className="text-3xl font-extrabold text-slate-900 mt-3">12.4K</h3>
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-1">Total Clicks</p>
+            <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mt-3">12.4K</h3>
+            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-1">Total Clicks</p>
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between h-40">
+        <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col justify-between h-40">
           <div className="flex items-center justify-between">
-            <div className="h-10 w-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+            <div className="h-10 w-10 bg-indigo-50 dark:bg-indigo-950/20 rounded-xl flex items-center justify-center text-indigo-600 dark:text-indigo-400">
               <Users className="h-5 w-5" />
             </div>
           </div>
           <div>
-            <h3 className="text-3xl font-extrabold text-slate-900 mt-3">Google</h3>
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-1">Top Referrer</p>
+            <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mt-3">Google</h3>
+            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-1">Top Referrer</p>
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between h-40">
+        <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col justify-between h-40">
           <div className="flex items-center justify-between">
-            <div className="h-10 w-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
+            <div className="h-10 w-10 bg-emerald-50 dark:bg-emerald-950/20 rounded-xl flex items-center justify-center text-emerald-600 dark:text-emerald-400">
               <Target className="h-5 w-5" />
             </div>
           </div>
           <div>
-            <h3 className="text-3xl font-extrabold text-slate-900 mt-3">6.8%</h3>
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-1">Conversion Rate</p>
+            <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white mt-3">6.8%</h3>
+            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-1">Conversion Rate</p>
           </div>
         </div>
       </div>
 
       {/* Traffic details card placeholder */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-        <h3 className="text-sm font-bold text-slate-900">Traffic Source Breakdown</h3>
-        <p className="text-slate-500 text-xs mt-0.5">Understand where your audience is coming from.</p>
-        <div className="mt-6 h-48 border border-dashed border-slate-200 rounded-xl flex items-center justify-center text-slate-400 text-xs">
+      <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+        <h3 className="text-sm font-bold text-slate-900 dark:text-white">Traffic Source Breakdown</h3>
+        <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">Understand where your audience is coming from.</p>
+        <div className="mt-6 h-48 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl flex items-center justify-center text-slate-400 dark:text-slate-500 text-xs">
           Interactive charts will render here.
         </div>
       </div>
