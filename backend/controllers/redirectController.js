@@ -17,7 +17,7 @@ function logClick(link, req) {
   }).catch(() => {});
 }
 
-const client = () => process.env.CLIENT_URL || '';
+const client = () => (process.env.CLIENT_URL || 'http://localhost:5173').replace(/\/$/, '');
 
 // GET /:slug  — public redirect with expiry + password gating
 exports.redirect = async (req, res) => {
