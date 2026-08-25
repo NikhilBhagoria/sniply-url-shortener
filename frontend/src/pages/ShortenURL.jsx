@@ -130,8 +130,8 @@ export default function ShortenURL() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#1e75ff]">Workspace / Links</span>
-          <h1 className="text-3xl font-extrabold text-slate-900 mt-1">Recent Links</h1>
-          <p className="text-slate-500 text-xs mt-0.5">Manage and track all your shortened URLs in one place.</p>
+          <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">Recent Links</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">Manage and track all your shortened URLs in one place.</p>
         </div>
         <button
           onClick={() => {
@@ -149,44 +149,44 @@ export default function ShortenURL() {
       {/* 2. Stats Grid (3 cards as per mockup) */}
       <div className="grid gap-6 sm:grid-cols-3">
         {/* Total Links */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between h-36">
+        <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm flex flex-col justify-between h-36">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Links</span>
-            <Link2 className="h-4 w-4 text-slate-400" />
+            <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Total Links</span>
+            <Link2 className="h-4 w-4 text-slate-400 dark:text-slate-500" />
           </div>
           <div>
-            <h3 className="text-2xl font-extrabold text-slate-900 leading-none">
+            <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white leading-none">
               {summary.totalLinks.toLocaleString()}
             </h3>
-            <p className="text-[10px] font-semibold text-slate-400 mt-1.5">+42 this week</p>
+            <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mt-1.5">+42 this week</p>
           </div>
         </div>
 
         {/* Total Clicks */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between h-36">
+        <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm flex flex-col justify-between h-36">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Clicks</span>
-            <MousePointerClick className="h-4 w-4 text-slate-400" />
+            <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Total Clicks</span>
+            <MousePointerClick className="h-4 w-4 text-slate-400 dark:text-slate-500" />
           </div>
           <div>
-            <h3 className="text-2xl font-extrabold text-slate-900 leading-none">
+            <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white leading-none">
               {summary.totalClicks.toLocaleString()}
             </h3>
-            <p className="text-[10px] font-semibold text-[#1e75ff] mt-1.5">+12.5% vs last month</p>
+            <p className="text-[10px] font-semibold text-[#1e75ff] dark:text-blue-450 mt-1.5">+12.5% vs last month</p>
           </div>
         </div>
 
         {/* Active Links */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between h-36">
+        <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm flex flex-col justify-between h-36">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Links</span>
-            <Activity className="h-4 w-4 text-slate-400" />
+            <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Active Links</span>
+            <Activity className="h-4 w-4 text-slate-400 dark:text-slate-500" />
           </div>
           <div>
-            <h3 className="text-2xl font-extrabold text-slate-900 leading-none">
+            <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white leading-none">
               {activeCount.toLocaleString()}
             </h3>
-            <p className="text-[10px] font-semibold text-emerald-600 mt-1.5">
+            <p className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 mt-1.5">
               {summary.totalLinks > 0 ? `${Math.round((activeCount / summary.totalLinks) * 100)}% of total` : '100% of total'}
             </p>
           </div>
@@ -194,22 +194,22 @@ export default function ShortenURL() {
       </div>
 
       {/* 3. All Links Main Card */}
-      <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+      <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm">
         
         {/* Card Sub-header */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
           <div>
-            <h2 className="text-base font-bold text-slate-900">All Links</h2>
-            <p className="text-slate-500 text-xs mt-0.5">A list of your most recently created short links.</p>
+            <h2 className="text-base font-bold text-slate-900 dark:text-white">All Links</h2>
+            <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">A list of your most recently created short links.</p>
           </div>
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-semibold transition">
+            <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#1e293b] hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-semibold transition">
               <Filter className="h-3.5 w-3.5" />
               <span>Filter</span>
             </button>
             <button 
               onClick={toggleSort}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-semibold transition"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#1e293b] hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-semibold transition"
             >
               <ArrowUpDown className="h-3.5 w-3.5" />
               <span>Sort</span>
@@ -221,7 +221,7 @@ export default function ShortenURL() {
         <div className="mt-4 overflow-x-auto">
           <table className="min-w-full border-separate border-spacing-y-2.5 text-left">
             <thead>
-              <tr className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              <tr className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                 <th className="pb-2 pl-4 pr-3">Original URL</th>
                 <th className="pb-2 px-3">Short URL</th>
                 <th className="pb-2 px-3 text-right">Clicks</th>
@@ -233,13 +233,13 @@ export default function ShortenURL() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="6" className="text-center py-12 text-slate-400 text-xs bg-slate-50/50 rounded-2xl">
+                  <td colSpan="6" className="text-center py-12 text-slate-400 dark:text-slate-500 text-xs bg-slate-50/50 dark:bg-slate-900/40 rounded-2xl">
                     Loading links list...
                   </td>
                 </tr>
               ) : links.items.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="text-center py-12 text-slate-400 text-xs bg-slate-50/50 rounded-2xl">
+                  <td colSpan="6" className="text-center py-12 text-slate-400 dark:text-slate-500 text-xs bg-slate-50/50 dark:bg-slate-900/40 rounded-2xl">
                     No links found. Click "+ New Link" to create one.
                   </td>
                 </tr>
@@ -253,19 +253,19 @@ export default function ShortenURL() {
                   const active = !isExpired(l);
                   
                   return (
-                    <tr key={l._id} className="bg-slate-50/70 hover:bg-slate-100/70 border border-slate-100 transition rounded-xl">
+                    <tr key={l._id} className="bg-slate-50/70 dark:bg-slate-900/40 hover:bg-slate-100/70 dark:hover:bg-slate-800/40 border border-slate-100 dark:border-slate-800/50 transition rounded-xl">
                       {/* Original URL */}
                       <td className="py-3.5 pl-4 pr-3 align-middle rounded-l-xl max-w-[320px]">
                         <div className="flex items-center gap-3">
-                          <div className="h-8 w-8 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-slate-400 shrink-0">
+                          <div className="h-8 w-8 bg-white dark:bg-[#0b0f19] border border-slate-200 dark:border-slate-800 rounded-lg flex items-center justify-center text-slate-400 dark:text-slate-500 shrink-0">
                             <Globe className="h-4 w-4" />
                           </div>
                           <div className="min-w-0">
-                            <p className="truncate text-xs font-semibold text-slate-900" title={l.originalUrl}>
+                            <p className="truncate text-xs font-semibold text-slate-900 dark:text-white" title={l.originalUrl}>
                               {l.title || l.originalUrl}
                             </p>
                             {l.title && (
-                              <p className="truncate text-[10px] text-slate-400 mt-0.5" title={l.originalUrl}>
+                              <p className="truncate text-[10px] text-slate-400 dark:text-slate-500 mt-0.5" title={l.originalUrl}>
                                 {l.originalUrl}
                               </p>
                             )}
@@ -274,7 +274,7 @@ export default function ShortenURL() {
                       </td>
 
                       {/* Short URL */}
-                      <td className="py-3.5 px-3 align-middle text-xs font-medium text-[#1e75ff]">
+                      <td className="py-3.5 px-3 align-middle text-xs font-medium text-[#1e75ff] dark:text-blue-400">
                         <a 
                           href={`${SHORT_BASE}/${l.slug}`} 
                           target="_blank" 
@@ -286,12 +286,12 @@ export default function ShortenURL() {
                       </td>
 
                       {/* Clicks */}
-                      <td className="py-3.5 px-3 align-middle text-right text-xs font-bold text-slate-900">
+                      <td className="py-3.5 px-3 align-middle text-right text-xs font-bold text-slate-900 dark:text-white">
                         {l.clicks?.toLocaleString() || 0}
                       </td>
 
                       {/* Created */}
-                      <td className="py-3.5 px-3 align-middle text-xs text-slate-500">
+                      <td className="py-3.5 px-3 align-middle text-xs text-slate-500 dark:text-slate-400">
                         {createdDate}
                       </td>
 
@@ -299,8 +299,8 @@ export default function ShortenURL() {
                       <td className="py-3.5 px-3 align-middle">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                           active 
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' 
-                            : 'bg-slate-100 text-slate-600 border border-slate-200'
+                            ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30' 
+                            : 'bg-slate-100 dark:bg-[#1e293b] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800'
                         }`}>
                           {active ? 'Active' : 'Inactive'}
                         </span>
@@ -313,7 +313,7 @@ export default function ShortenURL() {
                           <button
                             onClick={() => copy(l.slug)}
                             title="Copy link"
-                            className="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-[#1e75ff] hover:bg-blue-50 transition"
+                            className="p-1.5 rounded-lg bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:text-[#1e75ff] dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition"
                           >
                             {copied === l.slug ? (
                               <Check className="h-3.5 w-3.5 text-emerald-600" />
@@ -326,7 +326,7 @@ export default function ShortenURL() {
                           <button
                             onClick={() => navigate(`/links/${l._id}`)}
                             title="View Stats"
-                            className="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition"
+                            className="p-1.5 rounded-lg bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition"
                           >
                             <BarChart2 className="h-3.5 w-3.5" />
                           </button>
@@ -335,7 +335,7 @@ export default function ShortenURL() {
                           <button
                             onClick={() => remove(l._id)}
                             title="Delete link"
-                            className="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-400 hover:text-red-600 hover:bg-red-50 transition"
+                            className="p-1.5 rounded-lg bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -351,13 +351,13 @@ export default function ShortenURL() {
 
         {/* Pagination Footer */}
         {links.pages > 1 && (
-          <div className="mt-6 flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between text-xs">
-            <div className="flex items-center gap-2 text-slate-500">
+          <div className="mt-6 flex flex-col gap-3 border-t border-slate-100 dark:border-slate-800 pt-4 sm:flex-row sm:items-center sm:justify-between text-xs">
+            <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
               <span>Rows per page</span>
               <select
                 value={rowsPerPage}
                 onChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(1); }}
-                className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-slate-700 outline-none"
+                className="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] px-2 py-1 text-slate-700 dark:text-slate-200 outline-none"
               >
                 {[5, 10, 15, 20].map((size) => (
                   <option key={size} value={size}>{size}</option>
@@ -365,20 +365,20 @@ export default function ShortenURL() {
               </select>
             </div>
             
-            <div className="flex items-center gap-3 text-slate-500">
+            <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400">
               <span>Page {links.page} of {links.pages}</span>
               <div className="flex items-center gap-1">
                 <button
                   disabled={page <= 1}
                   onClick={() => setPage(page - 1)}
-                  className="p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white transition"
+                  className="p-1.5 rounded-lg bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 disabled:opacity-40 disabled:hover:bg-white dark:disabled:hover:bg-[#1e293b] transition"
                 >
                   &lsaquo;
                 </button>
                 <button
                   disabled={page >= links.pages}
                   onClick={() => setPage(page + 1)}
-                  className="p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white transition"
+                  className="p-1.5 rounded-lg bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 disabled:opacity-40 disabled:hover:bg-white dark:disabled:hover:bg-[#1e293b] transition"
                 >
                   &rsaquo;
                 </button>
@@ -390,115 +390,107 @@ export default function ShortenURL() {
 
       {/* 4. Shorten Link Modal Dialog */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-          <div className="w-full max-w-lg bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-lg bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 bg-blue-50 rounded-lg flex items-center justify-center text-[#1e75ff]">
+                <div className="h-8 w-8 bg-blue-50 dark:bg-[#1e293b] rounded-lg flex items-center justify-center text-[#1e75ff]">
                   <Sparkles className="h-4.5 w-4.5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900">Shorten a URL</h3>
-                  <p className="text-[10px] text-slate-400 mt-0.5">Create a premium shortened link instantly.</p>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">Shorten a URL</h3>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Create a premium shortened link instantly.</p>
                 </div>
               </div>
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="p-1.5 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition"
+                className="p-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/65 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
             {/* Modal Form */}
-            <form id="shortenForm" onSubmit={create} className="p-6 pb-2 space-y-4">
+            <form id="shortenForm" onSubmit={create} className="p-6 space-y-4">
               {error && (
-                <div className="p-2.5 bg-red-50 border border-red-100 text-red-700 text-xs rounded-xl">
+                <div className="p-2.5 bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 text-red-700 dark:text-red-400 text-xs rounded-xl">
                   {error}
                 </div>
               )}
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700">Destination URL <span className="text-red-500">*</span></label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-350">Destination URL <span className="text-red-500">*</span></label>
                 <input
                   type="url"
                   required
                   placeholder="https://example.com/very/long/destination/url"
                   value={form.originalUrl}
                   onChange={(e) => setForm({ ...form, originalUrl: e.target.value })}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-400"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b0f19] px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition"
                 />
               </div>
-            </form>
 
-            {/* Advanced Settings (Placed outside form to prevent browser autofill) */}
-            <div className="px-6 pb-6 space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">Link Title (Optional)</label>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-350">Link Title (Optional)</label>
                   <input
                     type="text"
                     placeholder="e.g. Work Portfolio"
                     value={form.title}
                     onChange={(e) => setForm({ ...form, title: e.target.value })}
-                    onKeyDown={(e) => e.key === 'Enter' && document.getElementById('shortenForm').requestSubmit()}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-400"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b0f19] px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">Custom Alias (Optional)</label>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-350">Custom Alias (Optional)</label>
                   <input
                     type="text"
                     placeholder="e.g. portfolio"
                     value={form.slug}
                     onChange={(e) => setForm({ ...form, slug: e.target.value })}
-                    onKeyDown={(e) => e.key === 'Enter' && document.getElementById('shortenForm').requestSubmit()}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-400"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b0f19] px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">Expiry Date (Optional)</label>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-350">Expiry Date (Optional)</label>
                   <input
                     type="datetime-local"
                     value={form.expiresAt}
                     onChange={(e) => setForm({ ...form, expiresAt: e.target.value })}
-                    onKeyDown={(e) => e.key === 'Enter' && document.getElementById('shortenForm').requestSubmit()}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-400"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b0f19] px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">Password Protection (Optional)</label>
-                <input
-                  type="text"
-                  placeholder="Enter key password"
-                  value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  onKeyDown={(e) => e.key === 'Enter' && document.getElementById('shortenForm').requestSubmit()}
-                  style={{ WebkitTextSecurity: 'disc' }}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs text-slate-700 outline-none focus:border-blue-400"
-                />
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-350">Password Protection (Optional)</label>
+                  <input
+                    type="text"
+                    placeholder="Enter key password"
+                    value={form.password}
+                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    style={{ WebkitTextSecurity: 'disc' }}
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b0f19] px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition"
+                  />
                 </div>
               </div>
 
               {/* Modal Footer Actions */}
-              <div className="flex items-center justify-end gap-2 border-t border-slate-100 pt-5 mt-4">
+              <div className="flex items-center justify-end gap-2 border-t border-slate-100 dark:border-slate-800 pt-5 mt-4">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs font-semibold transition"
+                  className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-semibold transition"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  form="shortenForm"
                   className="px-4 py-2 rounded-lg bg-[#1e75ff] hover:bg-[#0a65ff] text-white text-xs font-semibold shadow-sm transition"
                 >
                   Shorten URL
                 </button>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       )}
