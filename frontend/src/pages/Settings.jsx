@@ -12,16 +12,31 @@ const menuItems = [
 ];
 
 export default function Settings() {
-  const { user } = useAuth();
-  const [name, setName] = useState(user?.name || 'Alex Rivera');
-  const [email, setEmail] = useState(user?.email || 'alex@sniply.app');
+  const { user, updateProfile } = useAuth();
+  const [name, setName] = useState(user?.name || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [password, setPassword] = useState('');
   const [company, setCompany] = useState('Sniply');
   const [timezone, setTimezone] = useState('America/New_York');
   const { darkMode, setDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('Profile');
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState({ text: '', isError: false });
 
-  const handleSave = () => {
-    alert('Changes saved successfully!');
+  const handleSave = async (e) => {
+    if (e) e.preventDefault();
+    setSaving(true);
+    setMsg({ text: '', isError: false });
+    try {
+      await updateProfile({ name, email, password: password || undefined });
+      setMsg({ text: 'Settings updated successfully!', isError: false });
+      setPassword('');
+      setTimeout(() => setMsg({ text: '', isError: false }), 3000);
+    } catch (err) {
+      setMsg({ text: err.response?.data?.msg || 'Failed to update settings', isError: true });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -36,12 +51,19 @@ export default function Settings() {
         </div>
         <button
           onClick={handleSave}
-          className="px-5 py-2.5 rounded-xl bg-[#1e75ff] hover:bg-[#0a65ff] text-white text-xs font-semibold shadow-sm flex items-center gap-1.5 transition-colors duration-150 self-start sm:self-auto"
+          disabled={saving}
+          className="px-5 py-2.5 rounded-xl bg-[#1e75ff] hover:bg-[#0a65ff] disabled:opacity-50 text-white text-xs font-semibold shadow-sm flex items-center gap-1.5 transition-colors duration-150 self-start sm:self-auto"
         >
           <Save className="h-4 w-4" />
-          <span>Save Changes</span>
+          <span>{saving ? 'Saving...' : 'Save Changes'}</span>
         </button>
       </div>
+
+      {msg.text && (
+        <div className={`p-3 rounded-xl text-xs font-semibold ${msg.isError ? 'bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400 border border-red-200 dark:border-red-900/40' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40'}`}>
+          {msg.text}
+        </div>
+      )}
 
       {/* 2. Grid Columns */}
       <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
@@ -111,41 +133,41 @@ export default function Settings() {
                 {/* Form Fields */}
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div className="space-y-1.5 col-span-2 sm:col-span-1">
-                    <label className="text-xs font-bold text-slate-700 dark:text-slate-350">Name</label>
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Name</label>
                     <input
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] px-4 py-2.5 text-xs text-slate-700 dark:text-slate-105 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition"
                     />
                   </div>
 
                   <div className="space-y-1.5 col-span-2 sm:col-span-1">
-                    <label className="text-xs font-bold text-slate-700 dark:text-slate-350">Email</label>
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Email</label>
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] px-4 py-2.5 text-xs text-slate-700 dark:text-slate-105 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition"
                     />
                   </div>
 
                   <div className="space-y-1.5 col-span-2 sm:col-span-1">
-                    <label className="text-xs font-bold text-slate-700 dark:text-slate-350">Company</label>
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Company</label>
                     <input
                       type="text"
                       value={company}
                       onChange={(e) => setCompany(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] px-4 py-2.5 text-xs text-slate-700 dark:text-slate-105 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition"
                     />
                   </div>
 
                   <div className="space-y-1.5 col-span-2 sm:col-span-1">
-                    <label className="text-xs font-bold text-slate-700 dark:text-slate-350">Timezone</label>
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Timezone</label>
                     <select
                       value={timezone}
                       onChange={(e) => setTimezone(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] px-4 py-2.5 text-xs text-slate-700 dark:text-slate-105 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition"
                     >
                       <option value="America/New_York">America/New_York</option>
                       <option value="America/Los_Angeles">America/Los_Angeles</option>
@@ -183,7 +205,7 @@ export default function Settings() {
 
                 {/* Footer Buttons */}
                 <div className="flex items-center justify-end gap-2 border-t border-slate-100 dark:border-slate-800 pt-5 mt-4">
-                  <button className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-350 text-xs font-semibold transition">
+                  <button className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-semibold transition">
                     Cancel
                   </button>
                   <button
@@ -213,11 +235,11 @@ export default function Settings() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 p-4 hover:border-slate-200 dark:hover:border-slate-700 transition cursor-pointer">
                   <h4 className="text-xs font-bold text-slate-800 dark:text-white">Billing</h4>
-                  <p className="text-[11px] text-slate-400 dark:text-slate-450 mt-1">View your subscription and payment details.</p>
+                  <p className="text-[11px] text-slate-400 dark:text-slate-400 mt-1">View your subscription and payment details.</p>
                 </div>
                 <div className="rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 p-4 hover:border-slate-200 dark:hover:border-slate-700 transition cursor-pointer">
                   <h4 className="text-xs font-bold text-slate-800 dark:text-white">Team</h4>
-                  <p className="text-[11px] text-slate-400 dark:text-slate-450 mt-1">Invite teammates and manage permissions.</p>
+                  <p className="text-[11px] text-slate-400 dark:text-slate-400 mt-1">Invite teammates and manage permissions.</p>
                 </div>
               </div>
             </div>
