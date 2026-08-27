@@ -28,32 +28,32 @@ export default function Register() {
   };
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center px-4 bg-gradient-to-b from-[#f8fafc] via-[#f0f4ff] to-[#f8fafc] py-12 overflow-hidden">
+    <div className="relative min-h-screen flex flex-col items-center justify-center px-4 bg-gradient-to-b from-[#f8fafc] via-[#f0f4ff] to-[#f8fafc] dark:from-[#0b0f19] dark:via-[#090d16] dark:to-[#0b0f19] py-12 overflow-hidden">
       {/* Ambient background glow blobs */}
       <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#1e75ff]/5 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-500/5 rounded-full blur-[120px] pointer-events-none" />
 
       {/* Badge/Logo Pill */}
-      <div className="relative inline-flex items-center gap-3 bg-white/80 backdrop-blur-md px-5 py-2.5 rounded-full border border-slate-100 shadow-[0_8px_30px_rgba(30,117,255,0.04)] mb-8 select-none z-10">
+      <div className="relative inline-flex items-center gap-3 bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-md px-5 py-2.5 rounded-full border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgba(30,117,255,0.04)] mb-8 select-none z-10">
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-tr from-[#1e75ff] to-[#0052d9] text-white shadow-sm">
           <Link2 className="h-4.5 w-4.5 rotate-45" />
         </div>
         <div className="flex flex-col text-left">
-          <span className="text-sm font-bold text-slate-900 leading-none">Sniply</span>
-          <span className="text-[10px] uppercase font-bold tracking-[0.12em] text-slate-400 mt-1">URL Shortener</span>
+          <span className="text-sm font-bold text-slate-900 dark:text-white leading-none">Sniply</span>
+          <span className="text-[10px] uppercase font-bold tracking-[0.12em] text-slate-400 dark:text-slate-500 mt-1">URL Shortener</span>
         </div>
       </div>
 
       {/* Register Card with Gradient Border */}
       <div className="relative w-full max-w-[480px] bg-gradient-to-tr from-[#1e75ff]/20 via-[#1e75ff]/5 to-indigo-500/20 p-[1.5px] rounded-[33px] shadow-[0_20px_50px_rgba(30,117,255,0.04)] transition-all duration-300 hover:shadow-[0_24px_60px_rgba(30,117,255,0.08)] z-10">
-        <div className="w-full bg-gradient-to-b from-white to-[#fcfdfe]/95 backdrop-blur-xl rounded-[32px] p-8 md:p-10">
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 text-center mb-2">Create Your Account</h1>
-          <p className="text-sm text-slate-500 text-center mb-8 font-medium">
+        <div className="w-full bg-gradient-to-b from-white to-[#fcfdfe]/95 dark:from-[#0f172a] dark:to-[#0b0f19]/95 backdrop-blur-xl rounded-[32px] p-8 md:p-10">
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white text-center mb-2">Create Your Account</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 text-center mb-8 font-medium">
             Join Sniply to shorten links, track performance, and manage your workspace in one place.
           </p>
 
           {error && (
-            <div className="mb-6 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 px-4 py-3 rounded-2xl text-center">
+            <div className="mb-6 text-xs font-semibold text-red-650 dark:text-red-400 bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 px-4 py-3 rounded-2xl text-center">
               {error}
             </div>
           )}
@@ -61,7 +61,7 @@ export default function Register() {
           <form onSubmit={submit} className="space-y-4">
             {/* Full Name Field */}
             <div>
-              <label htmlFor="name" className="block text-[13px] font-bold text-slate-700 mb-2">
+              <label htmlFor="name" className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-2">
                 Full Name
               </label>
               <input
@@ -71,13 +71,13 @@ export default function Register() {
                 required
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full px-4 py-3 border border-slate-200 bg-white/50 rounded-2xl text-sm placeholder-slate-400 focus:outline-none focus:border-[#1e75ff] focus:ring-4 focus:ring-blue-50 transition-all duration-200"
+                className="w-full px-4 py-3 border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-[#0b0f19]/50 text-slate-700 dark:text-slate-200 rounded-2xl text-sm placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-[#1e75ff] focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition-all duration-200"
               />
             </div>
 
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-[13px] font-bold text-slate-700 mb-2">
+              <label htmlFor="email" className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-2">
                 Email
               </label>
               <input
@@ -87,13 +87,13 @@ export default function Register() {
                 required
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="w-full px-4 py-3 border border-slate-200 bg-white/50 rounded-2xl text-sm placeholder-slate-400 focus:outline-none focus:border-[#1e75ff] focus:ring-4 focus:ring-blue-50 transition-all duration-200"
+                className="w-full px-4 py-3 border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-[#0b0f19]/50 text-slate-700 dark:text-slate-200 rounded-2xl text-sm placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-[#1e75ff] focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition-all duration-200"
               />
             </div>
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-[13px] font-bold text-slate-700 mb-2">
+              <label htmlFor="password" className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-2">
                 Password
               </label>
               <input
@@ -103,13 +103,13 @@ export default function Register() {
                 required
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="w-full px-4 py-3 border border-slate-200 bg-white/50 rounded-2xl text-sm placeholder-slate-400 focus:outline-none focus:border-[#1e75ff] focus:ring-4 focus:ring-blue-50 transition-all duration-200"
+                className="w-full px-4 py-3 border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-[#0b0f19]/50 text-slate-700 dark:text-slate-200 rounded-2xl text-sm placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-[#1e75ff] focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition-all duration-200"
               />
             </div>
 
             {/* Confirm Password Field */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-[13px] font-bold text-slate-700 mb-2">
+              <label htmlFor="confirmPassword" className="block text-[13px] font-bold text-slate-700 dark:text-slate-300 mb-2">
                 Confirm Password
               </label>
               <input
@@ -119,21 +119,21 @@ export default function Register() {
                 required
                 value={form.confirmPassword}
                 onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
-                className="w-full px-4 py-3 border border-slate-200 bg-white/50 rounded-2xl text-sm placeholder-slate-400 focus:outline-none focus:border-[#1e75ff] focus:ring-4 focus:ring-blue-50 transition-all duration-200"
+                className="w-full px-4 py-3 border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-[#0b0f19]/50 text-slate-700 dark:text-slate-200 rounded-2xl text-sm placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-[#1e75ff] focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition-all duration-200"
               />
             </div>
 
             {/* Terms checkbox */}
-            <div className="flex items-start gap-3 bg-[#f9fafc] px-4 py-3.5 rounded-2xl border border-slate-100 mt-2">
+            <div className="flex items-start gap-3 bg-[#f9fafc] dark:bg-[#0b0f19]/40 px-4 py-3.5 rounded-2xl border border-slate-100 dark:border-slate-800/80 mt-2">
               <input
                 type="checkbox"
                 id="agree"
                 required
-                className="mt-0.5 h-4 w-4 text-[#1e75ff] focus:ring-[#1e75ff] border-slate-300 rounded cursor-pointer"
+                className="mt-0.5 h-4 w-4 text-[#1e75ff] focus:ring-[#1e75ff] border-slate-300 dark:border-slate-800 bg-white dark:bg-[#0b0f19] rounded cursor-pointer"
               />
-              <label htmlFor="agree" className="text-xs leading-normal text-slate-500 font-medium select-none cursor-pointer">
-                I agree to the <span className="font-bold text-slate-700">Terms of Service</span> and{' '}
-                <span className="font-bold text-slate-700">Privacy Policy</span>.
+              <label htmlFor="agree" className="text-xs leading-normal text-slate-500 dark:text-slate-400 font-medium select-none cursor-pointer">
+                I agree to the <span className="font-bold text-slate-707 dark:text-slate-300">Terms of Service</span> and{' '}
+                <span className="font-bold text-slate-707 dark:text-slate-300">Privacy Policy</span>.
               </label>
             </div>
 
@@ -141,13 +141,13 @@ export default function Register() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-6 py-3.5 bg-gradient-to-r from-[#1e75ff] to-[#0a65ff] hover:opacity-95 text-white font-bold rounded-2xl text-sm shadow-md shadow-blue-100 disabled:opacity-50 transition-all duration-200"
+              className="w-full mt-6 py-3.5 bg-gradient-to-r from-[#1e75ff] to-[#0a65ff] hover:opacity-95 text-white font-bold rounded-2xl text-sm shadow-md shadow-blue-100 dark:shadow-none disabled:opacity-50 transition-all duration-200"
             >
               {loading ? 'Signing Up...' : 'Sign Up'}
             </button>
           </form>
 
-          <p className="text-sm text-center mt-8 text-slate-500 font-medium">
+          <p className="text-sm text-center mt-8 text-slate-500 dark:text-slate-400 font-medium">
             Already have an account?{' '}
             <Link to="/login" className="text-[#1e75ff] font-bold hover:underline">
               Log In
