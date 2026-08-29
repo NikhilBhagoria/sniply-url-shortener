@@ -13,7 +13,7 @@ export default function NotFound() {
           <Link2 className="h-4 w-4 rotate-45" />
         </div>
         <div className="text-left">
-          <h2 className="text-sm font-bold text-slate-850 leading-tight">Sniply</h2>
+          <h2 className="text-sm font-bold text-slate-800 leading-tight">Sniply</h2>
           <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider leading-none">URL Shortener</p>
         </div>
       </div>
