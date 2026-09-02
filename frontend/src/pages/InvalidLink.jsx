@@ -36,28 +36,28 @@ export default function InvalidLink() {
   const isExpired = reason === 'expired';
 
   return (
-    <div className="min-h-screen w-full bg-[#f8fafc] md:bg-[#f4f7fe] flex items-center justify-center p-4 md:p-6 font-sans">
+    <div className="min-h-screen w-full bg-[#f8fafc] md:bg-[#f4f7fe] dark:bg-[#0b0f19] flex items-center justify-center p-4 md:p-6 font-sans">
       
       {/* Main Card */}
-      <div className="w-full max-w-[620px] bg-white rounded-3xl p-8 md:p-12 flex flex-col items-center shadow-[0_15px_50px_rgba(0,0,0,0.025)] border border-slate-100/80 animate-in fade-in duration-300">
+      <div className="w-full max-w-[620px] bg-white dark:bg-[#0f172a] rounded-3xl p-8 md:p-12 flex flex-col items-center shadow-[0_15px_50px_rgba(0,0,0,0.025)] dark:shadow-[0_15px_50px_rgba(0,0,0,0.2)] border border-slate-100/80 dark:border-slate-800/80 animate-in fade-in duration-300">
         
         {/* Broken Link Icon inside circle */}
-        <div className="w-16 h-16 rounded-full bg-[#eef4ff] flex items-center justify-center text-[#1e75ff] mb-6">
+        <div className="w-16 h-16 rounded-full bg-[#eef4ff] dark:bg-[#1e293b] flex items-center justify-center text-[#1e75ff] mb-6">
           <Link2OffIcon className="h-7 w-7" />
         </div>
 
         {/* Heading */}
-        <h1 className="text-2xl md:text-[28px] font-extrabold text-[#0f172a] tracking-tight text-center leading-tight mb-2">
+        <h1 className="text-2xl md:text-[28px] font-extrabold text-[#0f172a] dark:text-white tracking-tight text-center leading-tight mb-2">
           This Short Link is Invalid or Expired
         </h1>
 
         {/* Sub-heading */}
-        <p className="text-sm md:text-base text-slate-500 font-medium text-center mb-1">
-          <span className="font-bold text-slate-800">{shortLink}</span> {isExpired ? 'has expired.' : 'could not be found.'}
+        <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 font-medium text-center mb-1">
+          <span className="font-bold text-slate-800 dark:text-slate-200">{shortLink}</span> {isExpired ? 'has expired.' : 'could not be found.'}
         </p>
 
         {/* Description */}
-        <p className="text-xs md:text-sm text-slate-400 font-medium text-center mb-8">
+        <p className="text-xs md:text-sm text-slate-400 dark:text-slate-550 font-medium text-center mb-8">
           This link may have been deleted, expired, or never existed.
         </p>
 
@@ -72,15 +72,15 @@ export default function InvalidLink() {
         {/* Secondary Action Button */}
         <a
           href="mailto:support@sniply.com"
-          className="px-6 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold rounded-full text-xs transition-all duration-200 mb-8 shadow-sm text-center min-w-[150px]"
+          className="px-6 py-2.5 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-full text-xs transition-all duration-200 mb-8 shadow-sm text-center min-w-[150px]"
         >
           Contact Support
         </a>
 
         {/* Amber Alert Box */}
-        <div className="w-full bg-[#fffcf5] border border-[#fde047] rounded-2xl p-4 md:p-5 flex items-start gap-3.5 text-left mb-6">
+        <div className="w-full bg-[#fffcf5] dark:bg-yellow-950/10 border border-[#fde047] dark:border-yellow-600/30 rounded-2xl p-4 md:p-5 flex items-start gap-3.5 text-left mb-6">
           {/* Warning Triangle Icon */}
-          <div className="h-9 w-9 rounded-full bg-[#fef9c3] flex items-center justify-center shrink-0">
+          <div className="h-9 w-9 rounded-full bg-[#fef9c3] dark:bg-yellow-950/30 flex items-center justify-center shrink-0">
             <svg 
               className="h-5 w-5 text-amber-600 shrink-0" 
               viewBox="0 0 24 24" 
@@ -96,10 +96,10 @@ export default function InvalidLink() {
             </svg>
           </div>
           <div>
-            <h4 className="text-xs md:text-sm font-bold text-slate-800 leading-snug">
+            <h4 className="text-xs md:text-sm font-bold text-slate-800 dark:text-yellow-600 leading-snug">
               {isExpired ? 'Error Code: 410 - Link Expired' : 'Error Code: 410 - Link Not Found'}
             </h4>
-            <p className="text-[11px] md:text-xs text-slate-500 font-medium mt-1 leading-normal">
+            <p className="text-[11px] md:text-xs text-slate-500 dark:text-slate-400 font-medium mt-1 leading-normal">
               {isExpired 
                 ? 'The destination is unavailable because the link has reached its expiry limit. Please verify the URL or create a new short link.' 
                 : 'The destination is unavailable. Please verify the URL or create a new short link.'}
@@ -109,10 +109,10 @@ export default function InvalidLink() {
 
         {/* Logo at bottom */}
         <div className="flex items-center gap-1.5 mt-2 mb-2">
-          <div className="h-5 w-5 rounded-full bg-blue-50 flex items-center justify-center text-[#1e75ff]">
+          <div className="h-5 w-5 rounded-full bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center text-[#1e75ff]">
             <Link2 className="h-3 w-3 rotate-45" />
           </div>
-          <span className="text-xs font-bold text-slate-800">Sniply</span>
+          <span className="text-xs font-bold text-slate-800 dark:text-slate-200">Sniply</span>
         </div>
 
         {/* Support Link */}
