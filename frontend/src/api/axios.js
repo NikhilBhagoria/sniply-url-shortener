@@ -13,10 +13,15 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401) {
+    const url = err.config?.url || '';
+    const isPublicEndpoint = url.includes('/unlock') || url.includes('/auth/login') || url.includes('/auth/register');
+    
+    if (err.response?.status === 401 && !isPublicEndpoint) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      if (!window.location.pathname.startsWith('/login')) window.location.href = '/login';
+      if (!window.location.pathname.startsWith('/login')) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(err);
   }
