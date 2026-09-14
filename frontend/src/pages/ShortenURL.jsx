@@ -1,3 +1,5 @@
+import LinkEditor from '../components/LinkEditor';
+import { Pencil, Pause, Play } from 'lucide-react';
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
@@ -21,7 +23,6 @@ import {
 } from 'lucide-react';
 
 const SHORT_BASE = import.meta.env.VITE_SHORT_BASE || 'http://localhost:5000';
-const EMPTY = { originalUrl: '', slug: '', title: '', expiresAt: '', password: '' };
 
 export default function ShortenURL() {
   const navigate = useNavigate();
@@ -33,11 +34,13 @@ export default function ShortenURL() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [loading, setLoading] = useState(true);
   
-  const [form, setForm] = useState(EMPTY);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [copied, setCopied] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editor, setEditor] = useState(null);
+  const [status, setStatus] = useState('all');
+  const [busy, setBusy] = useState('');
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState('desc');
 
@@ -45,48 +48,25 @@ export default function ShortenURL() {
     setLoading(true);
     try {
       const [listRes, sumRes] = await Promise.all([
-        api.get('/links', { params: { search, page, limit: rowsPerPage, sort: sortBy, order: sortOrder } }),
+        api.get('/links', { params: { status, search, page, limit: rowsPerPage, sort: sortBy, order: sortOrder } }),
         api.get('/links/summary'),
       ]);
       setLinks(listRes.data);
+      if (page > listRes.data.pages) setPage(listRes.data.pages);
       setSummary(sumRes.data);
     } catch (err) {
-      console.error('Error loading links:', err);
+      setError(err.response?.data?.msg || 'Could not load links');
     } finally {
       setLoading(false);
     }
-  }, [search, page, rowsPerPage, sortBy, sortOrder]);
+  }, [status, search, page, rowsPerPage, sortBy, sortOrder]);
+
+  useEffect(() => { setPage(1); }, [search, status]);
 
   useEffect(() => {
     const timeout = setTimeout(loadLinks, 300);
     return () => clearTimeout(timeout);
   }, [loadLinks]);
-
-  const create = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
-    if (!form.originalUrl) {
-      setError('Please provide a URL to shorten.');
-      return;
-    }
-    
-    try {
-      const payload = { ...form };
-      if (!payload.expiresAt) delete payload.expiresAt;
-      if (!payload.password) delete payload.password;
-      
-      const { data } = await api.post('/links', payload);
-      setForm(EMPTY);
-      setPage(1);
-      setIsModalOpen(false);
-      setSuccess(`Link shortened successfully: ${SHORT_BASE}/${data.slug}`);
-      setTimeout(() => setSuccess(''), 5000);
-      loadLinks();
-    } catch (err) {
-      setError(err.response?.data?.msg || 'Could not create link');
-    }
-  };
 
   const remove = async (id) => {
     if (!confirm('Are you sure you want to delete this link and its analytics?')) return;
@@ -94,27 +74,20 @@ export default function ShortenURL() {
       await api.delete(`/links/${id}`);
       loadLinks();
     } catch (err) {
-      console.error('Error deleting link:', err);
+      setError(err.response?.data?.msg || 'Could not delete link');
     }
   };
 
-  const copy = (slug) => {
-    navigator.clipboard.writeText(`${SHORT_BASE}/${slug}`);
+  const copy = async (slug) => {
+    try { await navigator.clipboard.writeText(`${SHORT_BASE}/${slug}`); } catch { setError('Could not copy link.'); return; }
     setCopied(slug);
     setTimeout(() => setCopied(''), 1500);
   };
 
   const isExpired = (l) => l.expiresAt && new Date(l.expiresAt).getTime() < Date.now();
-  const activeCount = links.items.filter((l) => !isExpired(l)).length || summary.totalLinks;
+  const activeCount = summary.activeLinks || 0;
 
-  const toggleSort = () => {
-    if (sortBy === 'createdAt') {
-      setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
-    } else {
-      setSortBy('createdAt');
-      setSortOrder('desc');
-    }
-  };
+  const toggleSort = () => { setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc'); setPage(1); };
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6 animate-in fade-in duration-300">
@@ -126,6 +99,7 @@ export default function ShortenURL() {
         </div>
       )}
 
+      {error && <p role="alert" className="p-3 rounded-xl bg-red-50 text-red-600 text-xs">{error}</p>}
       {/* 1. Page Header with Action Button */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -136,7 +110,6 @@ export default function ShortenURL() {
         <button
           onClick={() => {
             setError('');
-            setForm(EMPTY);
             setIsModalOpen(true);
           }}
           className="px-5 py-2.5 rounded-xl bg-[#1e75ff] hover:bg-[#0a65ff] text-white text-xs font-semibold shadow-sm flex items-center gap-1.5 transition-colors self-start sm:self-auto"
@@ -158,7 +131,7 @@ export default function ShortenURL() {
             <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white leading-none">
               {summary.totalLinks.toLocaleString()}
             </h3>
-            <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mt-1.5">+42 this week</p>
+            <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mt-1.5">All created links</p>
           </div>
         </div>
 
@@ -172,7 +145,7 @@ export default function ShortenURL() {
             <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white leading-none">
               {summary.totalClicks.toLocaleString()}
             </h3>
-            <p className="text-[10px] font-semibold text-[#1e75ff] dark:text-blue-450 mt-1.5">+12.5% vs last month</p>
+            <p className="text-[10px] font-semibold text-[#1e75ff] dark:text-blue-450 mt-1.5">All-time recorded clicks</p>
           </div>
         </div>
 
@@ -187,7 +160,7 @@ export default function ShortenURL() {
               {activeCount.toLocaleString()}
             </h3>
             <p className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 mt-1.5">
-              {summary.totalLinks > 0 ? `${Math.round((activeCount / summary.totalLinks) * 100)}% of total` : '100% of total'}
+              {summary.totalLinks > 0 ? `${Math.round((activeCount / summary.totalLinks) * 100)}% of total` : '0% of total'}
             </p>
           </div>
         </div>
@@ -203,11 +176,10 @@ export default function ShortenURL() {
             <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">A list of your most recently created short links.</p>
           </div>
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#1e293b] hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-semibold transition">
-              <Filter className="h-3.5 w-3.5" />
-              <span>Filter</span>
-            </button>
-            <button 
+            <label className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs"><Filter className="h-3.5 w-3.5" /><select aria-label="Filter status" value={status} onChange={e => { setStatus(e.target.value); setPage(1); }} className="bg-transparent">{['all','active','paused','expired'].map(v => <option key={v} value={v}>{v === 'all' ? 'All links' : v}</option>)}</select></label>
+            <select aria-label="Sort links by" value={sortBy} onChange={e => { setSortBy(e.target.value); setPage(1); }} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent px-2 py-2 text-xs"><option value="createdAt">Created</option><option value="clicks">Clicks</option><option value="title">Title</option></select>
+            <button
+              aria-label={sortOrder === 'desc' ? 'Sort ascending' : 'Sort descending'}
               onClick={toggleSort}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#1e293b] hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-semibold transition"
             >
@@ -250,7 +222,7 @@ export default function ShortenURL() {
                     day: 'numeric',
                     year: 'numeric'
                   });
-                  const active = !isExpired(l);
+                  const active = !isExpired(l) && !l.isPaused;
                   
                   return (
                     <tr key={l._id} className="bg-slate-50/70 dark:bg-slate-900/40 hover:bg-slate-100/70 dark:hover:bg-slate-800/40 border border-slate-100 dark:border-slate-800/50 transition rounded-xl">
@@ -302,13 +274,15 @@ export default function ShortenURL() {
                             ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30' 
                             : 'bg-slate-100 dark:bg-[#1e293b] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800'
                         }`}>
-                          {active ? 'Active' : 'Inactive'}
+                          {isExpired(l) ? 'Expired' : l.isPaused ? 'Paused' : 'Active'}
                         </span>
                       </td>
 
                       {/* Actions */}
                       <td className="py-3.5 pr-4 align-middle text-right rounded-r-xl">
                         <div className="flex items-center justify-end gap-1.5">
+                          <button aria-label="Edit" title="Edit link" onClick={() => setEditor(l)} className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-blue-500"><Pencil className="h-3.5 w-3.5" /></button>
+                          <button aria-label={l.isPaused ? 'Resume' : 'Pause'} title={l.isPaused ? 'Resume' : 'Pause'} disabled={busy === l._id} onClick={async () => { setBusy(l._id); try { await api.patch('/links/' + l._id, { isPaused: !l.isPaused }); await loadLinks(); } catch(e) { setError(e.response?.data?.msg || 'Could not update link'); } finally { setBusy(''); } }} className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-blue-500">{l.isPaused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}</button>
                           {/* Copy Link */}
                           <button
                             onClick={() => copy(l.slug)}
@@ -325,7 +299,7 @@ export default function ShortenURL() {
                           {/* View Analytics */}
                           <button
                             onClick={() => navigate(`/links/${l._id}`)}
-                            title="View Stats"
+                            title="View Stats" aria-label="Stats"
                             className="p-1.5 rounded-lg bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition"
                           >
                             <BarChart2 className="h-3.5 w-3.5" />
@@ -388,113 +362,7 @@ export default function ShortenURL() {
         )}
       </div>
 
-      {/* 4. Shorten Link Modal Dialog */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-lg bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 bg-blue-50 dark:bg-[#1e293b] rounded-lg flex items-center justify-center text-[#1e75ff]">
-                  <Sparkles className="h-4.5 w-4.5" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">Shorten a URL</h3>
-                  <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Create a premium shortened link instantly.</p>
-                </div>
-              </div>
-              <button 
-                onClick={() => setIsModalOpen(false)}
-                className="p-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/65 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            {/* Modal Form */}
-            <form id="shortenForm" onSubmit={create} className="p-6 space-y-4">
-              {error && (
-                <div className="p-2.5 bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 text-red-700 dark:text-red-400 text-xs rounded-xl">
-                  {error}
-                </div>
-              )}
-
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-350">Destination URL <span className="text-red-500">*</span></label>
-                <input
-                  type="url"
-                  required
-                  placeholder="https://example.com/very/long/destination/url"
-                  value={form.originalUrl}
-                  onChange={(e) => setForm({ ...form, originalUrl: e.target.value })}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b0f19] px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition"
-                />
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-350">Link Title (Optional)</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Work Portfolio"
-                    value={form.title}
-                    onChange={(e) => setForm({ ...form, title: e.target.value })}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b0f19] px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-350">Custom Alias (Optional)</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. portfolio"
-                    value={form.slug}
-                    onChange={(e) => setForm({ ...form, slug: e.target.value })}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b0f19] px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-350">Expiry Date (Optional)</label>
-                  <input
-                    type="datetime-local"
-                    value={form.expiresAt}
-                    onChange={(e) => setForm({ ...form, expiresAt: e.target.value })}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b0f19] px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 dark:text-slate-350">Password Protection (Optional)</label>
-                  <input
-                    type="text"
-                    placeholder="Enter key password"
-                    value={form.password}
-                    onChange={(e) => setForm({ ...form, password: e.target.value })}
-                    style={{ WebkitTextSecurity: 'disc' }}
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b0f19] px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition"
-                  />
-                </div>
-              </div>
-
-              {/* Modal Footer Actions */}
-              <div className="flex items-center justify-end gap-2 border-t border-slate-100 dark:border-slate-800 pt-5 mt-4">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-semibold transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 rounded-lg bg-[#1e75ff] hover:bg-[#0a65ff] text-white text-xs font-semibold shadow-sm transition"
-                >
-                  Shorten URL
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
+      {(isModalOpen || editor) && <LinkEditor link={editor} onClose={() => { setIsModalOpen(false); setEditor(null); }} onSaved={() => { setIsModalOpen(false); setEditor(null); setSuccess('Link saved.'); loadLinks(); }} />}
     </div>
   );
 }
