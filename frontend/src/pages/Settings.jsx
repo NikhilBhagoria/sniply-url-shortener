@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+import api from '../api/axios';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -12,12 +14,12 @@ const menuItems = [
 ];
 
 export default function Settings() {
-  const { user, updateProfile } = useAuth();
+  const { user, updateProfile, logout } = useAuth();
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
   const [password, setPassword] = useState('');
-  const [company, setCompany] = useState('Sniply');
-  const [timezone, setTimezone] = useState('America/New_York');
+  const [company, setCompany] = useState(user?.company || '');
+  const [timezone, setTimezone] = useState(user?.timezone || 'UTC');
   const { darkMode, setDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('Profile');
   const [saving, setSaving] = useState(false);
@@ -25,11 +27,12 @@ export default function Settings() {
 
   const handleSave = async (e) => {
     if (e) e.preventDefault();
+    if (saving) return;
     setSaving(true);
     setMsg({ text: '', isError: false });
     try {
-      await updateProfile({ name, email, password: password || undefined });
-      setMsg({ text: 'Settings updated successfully!', isError: false });
+      await updateProfile({ name, email, company, timezone, currentPassword: password || undefined });
+      setMsg({ text: 'Profile saved.', isError: false });
       setPassword('');
       setTimeout(() => setMsg({ text: '', isError: false }), 3000);
     } catch (err) {
@@ -39,6 +42,19 @@ export default function Settings() {
     }
   };
 
+  const [passwords, setPasswords] = useState({ currentPassword: '', password: '', confirm: '' });
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const run = async action => { if (busy) return; setBusy(true); setMessage(''); setError(''); try { await action(); } catch (e) { setError(e.response?.data?.msg || e.message || 'Request failed'); } finally { setBusy(false); } };
+  const changePassword = e => { e.preventDefault(); run(async () => {
+    if (passwords.password !== passwords.confirm) throw new Error('Passwords do not match');
+    await api.post('/auth/change-password', { currentPassword: passwords.currentPassword, password: passwords.password });
+    logout(); navigate('/login');
+  }); };
+  const navigate = useNavigate();
+  const input = 'mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] px-4 py-2.5 text-xs';
+  const card = 'space-y-4 text-xs';
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6 animate-in fade-in duration-300">
 
@@ -51,7 +67,7 @@ export default function Settings() {
         </div>
         <button
           onClick={handleSave}
-          disabled={saving}
+          disabled={saving || activeTab !== 'Profile'}
           className="px-5 py-2.5 rounded-xl bg-[#1e75ff] hover:bg-[#0a65ff] disabled:opacity-50 text-white text-xs font-semibold shadow-sm flex items-center gap-1.5 transition-colors duration-150 self-start sm:self-auto"
         >
           <Save className="h-4 w-4" />
@@ -59,8 +75,9 @@ export default function Settings() {
         </button>
       </div>
 
+      {error && <p role="alert" className="text-xs text-red-600">{error}</p>}{message && <p role="status" className="text-xs text-emerald-600">{message}</p>}
       {msg.text && (
-        <div className={`p-3 rounded-xl text-xs font-semibold ${msg.isError ? 'bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400 border border-red-200 dark:border-red-900/40' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40'}`}>
+        <div role={msg.isError ? "alert" : "status"} className={`p-3 rounded-xl text-xs font-semibold ${msg.isError ? 'bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400 border border-red-200 dark:border-red-900/40' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40'}`}>
           {msg.text}
         </div>
       )}
@@ -109,21 +126,17 @@ export default function Settings() {
               <div className="space-y-6">
                 {/* Avatar Block */}
                 <div className="rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 p-5 flex flex-col sm:flex-row items-center gap-5">
-                  <img
-                    src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=256&auto=format&fit=crop"
-                    alt="Avatar"
-                    className="h-16 w-16 rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-sm shrink-0"
-                  />
+                  <div className="h-16 w-16 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xl font-bold shrink-0">{user?.name?.[0]?.toUpperCase() || 'U'}</div>
                   <div className="text-center sm:text-left space-y-3">
                     <div>
                       <h4 className="text-sm font-bold text-slate-900 dark:text-white">Avatar</h4>
-                      <p className="text-[11px] text-slate-400 mt-0.5">Upload a square image for your profile picture.</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Photo uploads are planned for a future release.</p>
                     </div>
                     <div className="flex flex-wrap justify-center sm:justify-start gap-2">
-                      <button className="px-3.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition">
+                      <button disabled className="disabled:opacity-40 px-3.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition">
                         Upload New
                       </button>
-                      <button className="px-3.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold transition">
+                      <button disabled className="disabled:opacity-40 px-3.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold transition">
                         Remove
                       </button>
                     </div>
@@ -136,7 +149,7 @@ export default function Settings() {
                     <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Name</label>
                     <input
                       type="text"
-                      value={name}
+                      aria-label="name" value={name}
                       onChange={(e) => setName(e.target.value)}
                       className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition"
                     />
@@ -146,7 +159,7 @@ export default function Settings() {
                     <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Email</label>
                     <input
                       type="email"
-                      value={email}
+                      aria-label="email" value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition"
                     />
@@ -156,7 +169,7 @@ export default function Settings() {
                     <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Company</label>
                     <input
                       type="text"
-                      value={company}
+                      aria-label="company" value={company}
                       onChange={(e) => setCompany(e.target.value)}
                       className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition"
                     />
@@ -165,10 +178,11 @@ export default function Settings() {
                   <div className="space-y-1.5 col-span-2 sm:col-span-1">
                     <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Timezone</label>
                     <select
-                      value={timezone}
+                      aria-label="timezone" value={timezone}
                       onChange={(e) => setTimezone(e.target.value)}
                       className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] px-4 py-2.5 text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-950/20 transition"
                     >
+                      <option value="UTC">UTC</option>
                       <option value="America/New_York">America/New_York</option>
                       <option value="America/Los_Angeles">America/Los_Angeles</option>
                       <option value="Europe/London">Europe/London</option>
@@ -177,6 +191,7 @@ export default function Settings() {
                     </select>
                   </div>
 
+                  {email !== user?.email && <label className="col-span-2 text-xs font-bold">Current password to change email<input type="password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} className={input} /></label>}
                   {/* Dark Mode toggle card */}
                   <div className="col-span-2 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 p-4">
                     <div className="flex items-center justify-between">
@@ -205,10 +220,11 @@ export default function Settings() {
 
                 {/* Footer Buttons */}
                 <div className="flex items-center justify-end gap-2 border-t border-slate-100 dark:border-slate-800 pt-5 mt-4">
-                  <button className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-semibold transition">
+                  <button onClick={() => { setName(user?.name || ''); setEmail(user?.email || ''); setCompany(user?.company || ''); setTimezone(user?.timezone || 'UTC'); setPassword(''); }} className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-semibold transition">
                     Cancel
                   </button>
                   <button
+                    disabled={saving}
                     onClick={handleSave}
                     className="px-4 py-2 rounded-lg bg-[#1e75ff] hover:bg-[#0a65ff] text-white text-xs font-semibold shadow-sm transition"
                   >
@@ -217,9 +233,17 @@ export default function Settings() {
                 </div>
 
               </div>
-            ) : (
+            ) : activeTab === 'Security' ? (<>     <section className={card}><h2 className="text-xl font-bold">Email verification</h2><p>{user?.emailVerified ? 'Your email is verified.' : 'Your email is not verified yet.'}</p>
+      {!user?.emailVerified && <button disabled={busy} onClick={() => run(async () => { const { data } = await api.post('/auth/request-verification', {}); setMessage(data.msg); })} className="text-blue-500">Send verification email</button>}
+      <button disabled={busy} className="block text-blue-500" onClick={() => run(async () => { await updateProfile({}); setMessage('Account refreshed.'); })}>Refresh verification status</button>
+    </section>
+    <form onSubmit={changePassword} className={card}><h2 className="text-xl font-bold">Change password</h2><p className="text-sm text-slate-500">Changing your password signs out existing sessions and invalidates existing API keys.</p>
+      {[['currentPassword', 'Current password'], ['password', 'New password'], ['confirm', 'Confirm new password']].map(([field, label]) => <label className="block" key={field}>{label}<input type="password" autoComplete={field === 'currentPassword' ? 'current-password' : 'new-password'} minLength={field === 'currentPassword' ? 1 : 8} maxLength={72} required value={passwords[field]} onChange={e => setPasswords({ ...passwords, [field]: e.target.value })} className={input} /></label>)}
+      <button disabled={busy} className="bg-blue-600 text-white rounded-lg px-4 py-2 disabled:opacity-50">Change password and sign out</button>
+    </form>
+ </>) : activeTab === 'Appearance' ? (<label className="flex gap-3 text-xs"><input type="checkbox" checked={darkMode} onChange={e => setDarkMode(e.target.checked)} />Dark mode</label>) : (
               <div className="py-8 text-center text-slate-400 text-xs border border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/30 dark:bg-slate-900/10">
-                This section is a mock setting page. Switch back to Profile to edit your credentials.
+                These settings are planned for a future release.
               </div>
             )}
 
@@ -235,11 +259,11 @@ export default function Settings() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 p-4 hover:border-slate-200 dark:hover:border-slate-700 transition cursor-pointer">
                   <h4 className="text-xs font-bold text-slate-800 dark:text-white">Billing</h4>
-                  <p className="text-[11px] text-slate-400 dark:text-slate-400 mt-1">View your subscription and payment details.</p>
+                  <p className="text-[11px] text-slate-400 dark:text-slate-400 mt-1">Subscription settings — coming soon.</p>
                 </div>
                 <div className="rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 p-4 hover:border-slate-200 dark:hover:border-slate-700 transition cursor-pointer">
                   <h4 className="text-xs font-bold text-slate-800 dark:text-white">Team</h4>
-                  <p className="text-[11px] text-slate-400 dark:text-slate-400 mt-1">Invite teammates and manage permissions.</p>
+                  <p className="text-[11px] text-slate-400 dark:text-slate-400 mt-1">Team permissions — coming soon.</p>
                 </div>
               </div>
             </div>
