@@ -99,7 +99,9 @@ export default function Register() {
               <input
                 type="password"
                 id="password"
-                placeholder="Create a strong password"
+                placeholder="At least 8 characters"
+                minLength={8}
+                maxLength={72}
                 required
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
