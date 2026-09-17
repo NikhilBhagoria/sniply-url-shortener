@@ -62,6 +62,7 @@ export default function QRCodes() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form, setForm] = useState(EMPTY);
   const [error, setError] = useState('');
+  const [creating, setCreating] = useState(false);
 
   // Fetch links list
   const loadLinks = useCallback(async (selectFirst = false) => {
@@ -77,13 +78,13 @@ export default function QRCodes() {
         } else {
           // Keep selection synced if it's still in the current page list
           const updated = res.data.items.find(item => item._id === selectedLink._id);
-          if (updated) setSelectedLink(updated);
+          setSelectedLink(updated || res.data.items[0]);
         }
       } else {
         setSelectedLink(null);
       }
     } catch (err) {
-      console.error('Error loading links:', err);
+      setError(err.response?.data?.msg || 'Could not load links. Please reload to retry.');
     } finally {
       setLoading(false);
     }
@@ -113,6 +114,7 @@ export default function QRCodes() {
     const dark = foregroundColor.replace('#', '');
     const light = backgroundColor.replace('#', '');
     setFetchingQr(true);
+    setQrData(null);
 
     const controller = new AbortController();
     api.get(`/links/${selectedLink._id}/qr`, {
@@ -124,11 +126,11 @@ export default function QRCodes() {
     })
     .catch((err) => {
       if (err.name !== 'CanceledError') {
-        console.error('Error fetching QR:', err);
+        setError('Could not generate QR preview. Change a setting to retry.');
       }
     })
     .finally(() => {
-      setFetchingQr(false);
+      if (!controller.signal.aborted) setFetchingQr(false);
     });
 
     return () => {
@@ -139,6 +141,7 @@ export default function QRCodes() {
   // Create new link and select it
   const handleCreate = async (e) => {
     e.preventDefault();
+    if (creating) return;
     setError('');
     if (!form.originalUrl) {
       setError('Please provide a URL to shorten.');
@@ -146,6 +149,7 @@ export default function QRCodes() {
     }
 
     try {
+      setCreating(true);
       const payload = { ...form };
       if (!payload.expiresAt) delete payload.expiresAt;
       if (!payload.password) delete payload.password;
@@ -160,7 +164,7 @@ export default function QRCodes() {
       await loadLinks(true);
     } catch (err) {
       setError(err.response?.data?.msg || 'Could not create link');
-    }
+    } finally { setCreating(false); }
   };
 
   // Download QR Code image
@@ -188,14 +192,14 @@ export default function QRCodes() {
       setCopiedQr(true);
       setTimeout(() => setCopiedQr(false), 2000);
     } catch (err) {
-      console.error('Failed to copy QR code image:', err);
+      setError('Image clipboard is unavailable. Use Download PNG instead.');
     }
   };
 
   // Copy Shortened Link
-  const copyLinkToClipboard = () => {
+  const copyLinkToClipboard = async () => {
     if (!qrData) return;
-    navigator.clipboard.writeText(qrData.shortUrl);
+    try { await navigator.clipboard.writeText(qrData.shortUrl); } catch { setError('Clipboard unavailable. Copy the link manually.'); return; }
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 1500);
   };
@@ -203,6 +207,7 @@ export default function QRCodes() {
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6 animate-in fade-in duration-300">
       
+      {error && <p role="alert" className="text-red-600">{error}</p>}
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -501,7 +506,7 @@ export default function QRCodes() {
                 <div className="w-full space-y-2">
                   <button
                     onClick={downloadQR}
-                    disabled={!qrData}
+                    disabled={!qrData || fetchingQr}
                     className="w-full py-2.5 rounded-xl bg-[#1e75ff] hover:bg-[#0a65ff] disabled:opacity-50 text-white text-xs font-bold shadow-sm flex items-center justify-center gap-1.5 transition-all duration-150"
                   >
                     <Download className="h-4 w-4" />
@@ -639,6 +644,7 @@ export default function QRCodes() {
                 <button
                   type="submit"
                   form="qrShortenForm"
+                  disabled={creating}
                   className="px-4 py-2 rounded-lg bg-[#1e75ff] hover:bg-[#0a65ff] text-white text-xs font-semibold shadow-sm transition-all"
                 >
                   Create & Select
