@@ -72,11 +72,7 @@ export default function Login() {
                   Password
                 </label>
                 <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    alert('Password reset functionality is not available in the demo.');
-                  }}
+                  href="/forgot-password"
                   className="text-[13px] font-bold text-[#1e75ff] hover:underline"
                 >
                   Forgot password?
@@ -114,5 +110,4 @@ export default function Login() {
     </div>
   );
 }
-
 
