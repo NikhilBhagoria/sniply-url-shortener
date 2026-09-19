@@ -18,26 +18,34 @@ import {
 
 const SHORT_BASE = import.meta.env.VITE_SHORT_BASE || 'http://localhost:5000';
 
+const iso = d => d.toISOString().slice(0, 10);
+const initial = () => ({ from: iso(new Date(Date.now() - 29 * 86400000)), to: iso(new Date()) });
 export default function LinkStats() {
-  const { id } = useParams();
   const navigate = useNavigate();
-  const [data, setData] = useState(null);
-  const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
-
+  const handleCopy = async text => { try { await navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch { setError("Could not copy link."); } };
+  const { id } = useParams();
+  const [draft, setDraft] = useState(initial);
+  const [range, setRange] = useState(initial);
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+  const [exporting, setExporting] = useState(false);
+  const [revision, setRevision] = useState(0);
   useEffect(() => {
-    api.get(`/links/${id}/stats`)
-      .then((res) => setData(res.data))
-      .catch((err) => setError(err.response?.data?.msg || 'Could not load stats'));
-  }, [id]);
-
-  const handleCopy = () => {
-    if (!data) return;
-    navigator.clipboard.writeText(`${SHORT_BASE}/${data.link.slug}`);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+    const controller = new AbortController(); setLoading(true); setError('');
+    api.get('/links/' + id + '/stats', { params: range, signal: controller.signal }).then(r => setData(r.data)).catch(e => { if (!controller.signal.aborted) setError(e.response?.data?.msg || 'Could not load analytics'); }).finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    return () => controller.abort();
+  }, [id, range, revision]);
+  const exportCsv = async () => {
+    setExporting(true); setError('');
+    try {
+      const { data: blob } = await api.get('/links/' + id + '/stats/export', { params: range, responseType: 'blob' });
+      const url = URL.createObjectURL(blob); const a = document.createElement('a');
+      a.href = url; a.download = 'sniply-clicks.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch { setError('Could not export analytics. Please try again.'); } finally { setExporting(false); }
   };
-
   if (error) return (
     <div className="p-6 max-w-2xl mx-auto text-center mt-12 animate-in fade-in duration-300">
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0f172a] p-8 shadow-sm space-y-4">
@@ -58,7 +66,7 @@ export default function LinkStats() {
     </div>
   );
 
-  if (!data) return (
+  if (loading || !data) return (
     <div className="p-6 max-w-7xl mx-auto text-slate-400 dark:text-slate-500 text-xs animate-pulse">
       Loading analytics details...
     </div>
@@ -83,6 +91,9 @@ export default function LinkStats() {
         </div>
       </div>
 
+      <form onSubmit={e => { e.preventDefault(); setRange({ ...draft }); }} className="flex flex-wrap items-end gap-3 text-xs bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-4">
+{['from','to'].map(field => <label key={field} className="capitalize font-semibold">{field} (UTC)<input type="date" required value={draft[field]} onChange={e => setDraft({ ...draft, [field]: e.target.value })} className="block mt-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent px-3 py-2" /></label>)}
+<button className="rounded-xl bg-[#1e75ff] text-white px-4 py-2">Apply dates</button><button type="button" disabled={exporting} onClick={exportCsv} className="rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-2 disabled:opacity-50">{exporting ? 'Exporting…' : 'Export CSV'}</button></form>
       {/* Target Details Card */}
       <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1.5 min-w-0">
@@ -106,7 +117,7 @@ export default function LinkStats() {
 
         <div className="flex items-center gap-2 shrink-0">
           <button 
-            onClick={handleCopy}
+            onClick={() => handleCopy(link.shortUrl || `${SHORT_BASE}/${link.slug}`)}
             className="px-3.5 py-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1e293b] hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold shadow-sm transition flex items-center gap-1.5"
           >
             {copied ? (
@@ -126,7 +137,7 @@ export default function LinkStats() {
 
       {/* Stats Summary Cards */}
       <div className="grid gap-6 grid-cols-2 sm:grid-cols-3">
-        {/* Total Clicks */}
+        {/* Clicks in date range */}
         <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm flex items-center gap-4">
           <div className="h-10 w-10 bg-blue-50 dark:bg-blue-950/20 rounded-xl flex items-center justify-center text-[#1e75ff] shrink-0">
             <MousePointerClick className="h-5 w-5" />
