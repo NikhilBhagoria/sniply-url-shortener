@@ -30,10 +30,11 @@ export default function InvalidLink() {
   
   // Extract dynamic short link path based on current URL
   const host = window.location.host;
-  const cleanHost = host.includes('localhost') ? 'sniply.app' : host;
+  const cleanHost = (import.meta.env.VITE_SHORT_BASE || 'http://localhost:5000').replace(/^https?:\/\//, '');
   const shortLink = slug ? `${cleanHost}/${slug}` : `${cleanHost}${window.location.pathname}`;
 
   const isExpired = reason === 'expired';
+  const isPaused = reason === 'paused';
 
   return (
     <div className="min-h-screen w-full bg-[#f8fafc] md:bg-[#f4f7fe] dark:bg-[#0b0f19] flex items-center justify-center p-4 md:p-6 font-sans">
@@ -48,7 +49,7 @@ export default function InvalidLink() {
 
         {/* Heading */}
         <h1 className="text-2xl md:text-[28px] font-extrabold text-[#0f172a] dark:text-white tracking-tight text-center leading-tight mb-2">
-          This Short Link is Invalid or Expired
+          {isPaused ? 'This Short Link is Paused' : 'This Short Link is Invalid or Expired'}
         </h1>
 
         {/* Sub-heading */}
@@ -97,12 +98,12 @@ export default function InvalidLink() {
           </div>
           <div>
             <h4 className="text-xs md:text-sm font-bold text-slate-800 dark:text-yellow-600 leading-snug">
-              {isExpired ? 'Error Code: 410 - Link Expired' : 'Error Code: 410 - Link Not Found'}
+              {isExpired ? 'Link expired' : isPaused ? 'Link paused by its owner' : 'Link not found'}
             </h4>
             <p className="text-[11px] md:text-xs text-slate-500 dark:text-slate-400 font-medium mt-1 leading-normal">
               {isExpired 
                 ? 'The destination is unavailable because the link has reached its expiry limit. Please verify the URL or create a new short link.' 
-                : 'The destination is unavailable. Please verify the URL or create a new short link.'}
+                : isPaused ? 'The owner has temporarily paused this link.' : 'The destination is unavailable. Please verify the URL or create a new short link.'}
             </p>
           </div>
         </div>
