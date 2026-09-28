@@ -4,6 +4,7 @@ import api from '../api/axios';
 import BarBlock from '../components/BarBlock';
 import TimelineChart from '../components/TimelineChart';
 import QRCard from '../components/QRCard';
+import BrowserChart from '../components/BrowserChart';
 import { 
   ArrowLeft, 
   MousePointerClick, 
@@ -19,7 +20,16 @@ import {
 const SHORT_BASE = import.meta.env.VITE_SHORT_BASE || 'http://localhost:5000';
 
 const iso = d => d.toISOString().slice(0, 10);
-const initial = () => ({ from: iso(new Date(Date.now() - 29 * 86400000)), to: iso(new Date()) });
+const presetRange = (days, interval = 'day') => ({ from: iso(new Date(Date.now() - (days - 1) * 86400000)), to: iso(new Date()), interval });
+const initial = () => presetRange(30);
+const duration = ms => {
+  if (ms === null || ms === undefined) return 'No data';
+  const seconds = Math.floor(ms / 1000);
+  if (seconds < 60) return `${seconds}s`;
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ${Math.floor(seconds / 60) % 60}m`;
+  return `${Math.floor(seconds / 86400)}d ${Math.floor(seconds / 3600) % 24}h`;
+};
 export default function LinkStats() {
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
@@ -27,6 +37,7 @@ export default function LinkStats() {
   const { id } = useParams();
   const [draft, setDraft] = useState(initial);
   const [range, setRange] = useState(initial);
+  const [preset, setPreset] = useState('30');
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -57,10 +68,10 @@ export default function LinkStats() {
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{error}</p>
         </div>
         <button 
-          onClick={() => navigate('/')} 
+          onClick={() => { const next = initial(); setDraft(next); setRange(next); setPreset('30'); setRevision(n => n + 1); }}
           className="px-4 py-2 rounded-xl bg-[#1e75ff] hover:bg-[#0a65ff] text-white text-xs font-semibold shadow-sm transition"
         >
-          Back to Dashboard
+          Reset dates and retry
         </button>
       </div>
     </div>
@@ -92,7 +103,9 @@ export default function LinkStats() {
       </div>
 
       <form onSubmit={e => { e.preventDefault(); setRange({ ...draft }); }} className="flex flex-wrap items-end gap-3 text-xs bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-4">
-{['from','to'].map(field => <label key={field} className="capitalize font-semibold">{field} (UTC)<input type="date" required value={draft[field]} onChange={e => setDraft({ ...draft, [field]: e.target.value })} className="block mt-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent px-3 py-2" /></label>)}
+<label className="font-semibold">Date range<select aria-label="Date range" value={preset} onChange={e => { setPreset(e.target.value); if (e.target.value !== 'custom') { const next = presetRange(Number(e.target.value), draft.interval); setDraft(next); setRange(next); } }} className="block mt-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2"><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="custom">Custom dates</option></select></label>
+{['from','to'].map(field => <label key={field} className="capitalize font-semibold">{field} (UTC)<input type="date" required value={draft[field]} onChange={e => { setPreset('custom'); setDraft({ ...draft, [field]: e.target.value }); }} className="block mt-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent px-3 py-2" /></label>)}
+<label className="font-semibold">Group by<select aria-label="Group by" value={draft.interval} onChange={e => setDraft({ ...draft, interval: e.target.value })} className="block mt-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2"><option value="day">Daily</option><option value="week">Weekly</option></select></label>
 <button className="rounded-xl bg-[#1e75ff] text-white px-4 py-2">Apply dates</button><button type="button" disabled={exporting} onClick={exportCsv} className="rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-2 disabled:opacity-50">{exporting ? 'Exporting…' : 'Export CSV'}</button></form>
       {/* Target Details Card */}
       <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -171,10 +184,21 @@ export default function LinkStats() {
         </div>
       </div>
 
+      <div className="grid gap-6 sm:grid-cols-3">
+        {[
+          ['Estimated unique visitors', data.visitorTrackedClicks ? data.estimatedUniqueVisitors.toLocaleString() : 'No data', `${data.visitorTrackedClicks} of ${totalClicks} clicks have visitor estimates. Shared networks and browser changes can affect this count.`],
+          ['Vs previous period', data.comparison.percentChange === null ? (totalClicks ? 'New activity' : 'No activity') : `${data.comparison.percentChange > 0 ? '+' : ''}${data.comparison.percentChange}%`, `${data.comparison.previousClicks} clicks from ${data.comparison.from} to ${data.comparison.to}. Equal-length UTC periods; today may be incomplete.`],
+          ['Avg. link age at click', duration(data.averageLinkAgeMs), `Time from link creation to click, averaged across ${data.linkAgeSamples} measured clicks. Not time spent viewing the link.`],
+        ].map(([title, value, help]) => <section key={title} className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+          <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{title}</h3><p className="text-xl font-extrabold mt-2">{value}</p><p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2">{help}</p>
+        </section>)}
+      </div>
+      <p className="text-xs text-slate-500 dark:text-slate-400">{data.interval === 'week' ? 'Weeks start Monday (UTC); edge weeks include only the selected dates.' : 'Daily totals use UTC.'} Visitor and timing metrics are available for newly recorded events; older clicks remain in total counts.</p>
+
       {/* Main Stats Charts Grid */}
       <div className="grid md:grid-cols-3 gap-6">
         <div className="md:col-span-2 bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
-          <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4">Click Timeline</h3>
+          <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4">{data.interval === 'week' ? 'Weekly Click Timeline' : 'Daily Click Timeline'}</h3>
           <TimelineChart data={timeline} />
         </div>
         <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
@@ -184,18 +208,22 @@ export default function LinkStats() {
       </div>
 
       {/* Device / Browser Breakdowns */}
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid md:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
           <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4">Devices</h3>
           <BarBlock title="Devices" data={devices} />
         </div>
         <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
           <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4">Browsers</h3>
-          <BarBlock title="Browsers" data={browsers} />
+          <BrowserChart data={browsers} />
         </div>
         <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
           <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4">Referrers</h3>
           <BarBlock title="Referrers" data={referrers} />
+        </div>
+        <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+          <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4">Operating Systems</h3>
+          <BarBlock title="Operating systems" data={data.operatingSystems} />
         </div>
       </div>
 
