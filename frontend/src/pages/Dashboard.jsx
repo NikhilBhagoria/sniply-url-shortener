@@ -17,6 +17,7 @@ const EMPTY = { originalUrl: '', slug: '', title: '', expiresAt: '', password: '
 export default function Dashboard() {
   const [summary, setSummary] = useState({ totalLinks: 0, totalClicks: 0, topLinks: [] });
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   
   const [form, setForm] = useState(EMPTY);
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -28,7 +29,7 @@ export default function Dashboard() {
       const res = await api.get('/links/summary');
       setSummary(res.data);
     } catch (err) {
-      console.error('Error loading summary:', err);
+      setError('Could not load summary. Please refresh.');
     } finally {
       setLoading(false);
     }
@@ -40,6 +41,7 @@ export default function Dashboard() {
 
   const create = async (e) => {
     e.preventDefault();
+    if (saving) return;
     setError('');
     setSuccess('');
     if (!form.originalUrl) {
@@ -47,9 +49,11 @@ export default function Dashboard() {
       return;
     }
     
+    setSaving(true);
     try {
       const payload = { ...form };
       if (!payload.expiresAt) delete payload.expiresAt;
+      else payload.expiresAt = new Date(payload.expiresAt).toISOString();
       if (!payload.password) delete payload.password;
       
       const { data } = await api.post('/links', payload);
@@ -60,7 +64,7 @@ export default function Dashboard() {
       loadSummary();
     } catch (err) {
       setError(err.response?.data?.msg || 'Could not create link');
-    }
+    } finally { setSaving(false); }
   };
 
   return (
@@ -114,7 +118,7 @@ export default function Dashboard() {
                 />
               </div>
               <button 
-                type="submit"
+                type="submit" aria-label="Shorten URL" disabled={saving}
                 className="px-6 py-3 rounded-xl bg-[#1e75ff] hover:bg-[#0a65ff] text-white text-xs font-semibold shadow-sm flex items-center justify-center gap-1.5 transition duration-150 shrink-0"
               >
                 <span>+</span>
@@ -132,7 +136,7 @@ export default function Dashboard() {
                 <span>Advanced settings</span>
                 {showAdvanced ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
               </button>
-              <span className="text-slate-400 dark:text-slate-500">No credit card required. Free tier includes 500 links.</span>
+              <span className="text-slate-400 dark:text-slate-500">Custom aliases, expiration and password protection.</span>
             </div>
 
             {/* Advanced Settings Fields */}
@@ -207,7 +211,7 @@ export default function Dashboard() {
               </h3>
               <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-1.5 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-900/30 flex items-center gap-0.5">
                 <span>↗</span>
-                <span>+12%</span>
+                <span>All time</span>
               </span>
             </div>
             <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-2.5">Total Links</p>
@@ -229,7 +233,7 @@ export default function Dashboard() {
               </h3>
               <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-1.5 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-900/30 flex items-center gap-0.5">
                 <span>↗</span>
-                <span>+34%</span>
+                <span>All time</span>
               </span>
             </div>
             <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-2.5">Total Clicks</p>
@@ -247,18 +251,18 @@ export default function Dashboard() {
           <div>
             <div className="flex items-baseline gap-2">
               <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white leading-none">
-                {summary.totalLinks.toLocaleString()}
+                {(summary.activeLinks || 0).toLocaleString()}
               </h3>
               <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-1.5 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-900/30 flex items-center gap-0.5">
                 <span>↗</span>
-                <span>+8%</span>
+                <span>Available</span>
               </span>
             </div>
             <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-2.5">Active Links</p>
           </div>
         </div>
 
-        {/* QR Codes Generated */}
+        {/* QR-enabled links */}
         <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm flex flex-col justify-between h-36">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">QR Codes</span>
@@ -268,13 +272,13 @@ export default function Dashboard() {
           </div>
           <div>
             <div className="flex items-baseline gap-2">
-              <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white leading-none">12</h3>
+              <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white leading-none">{summary.totalLinks}</h3>
               <span className="text-[10px] font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 px-1.5 py-0.5 rounded-full border border-red-100 dark:border-red-900/30 flex items-center gap-0.5">
                 <span>↘</span>
-                <span>-3%</span>
+                <span>Available</span>
               </span>
             </div>
-            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-2.5">QR Codes Generated</p>
+            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-2.5">QR-enabled links</p>
           </div>
         </div>
       </div>
