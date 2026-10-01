@@ -8,11 +8,12 @@ const SHORT_BASE = import.meta.env.VITE_SHORT_BASE || 'http://localhost:5000';
 export default function Analytics() {
   const [summary, setSummary] = useState({ totalLinks: 0, totalClicks: 0, topLinks: [] });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     api.get('/links/summary')
       .then((res) => setSummary(res.data))
-      .catch(() => {})
+      .catch(() => setError('Could not load analytics. Reload to retry.'))
       .finally(() => setLoading(false));
   }, []);
 
@@ -22,9 +23,10 @@ export default function Analytics() {
       <div>
         <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#1e75ff] dark:text-[#1e75ff]">Workspace / Analytics</span>
         <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">Analytics Overview</h1>
-        <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">Real-time performance metrics and top performing links.</p>
+        <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">Recorded performance metrics and top performing links.</p>
       </div>
 
+      {error && <p role="alert" className="text-red-600">{error}</p>}
       {/* Overview Cards */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <div className="bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm flex flex-col justify-between h-40">
@@ -94,7 +96,7 @@ export default function Analytics() {
                     {item.clicks} clicks
                   </span>
                   <Link
-                    to={`/analytics/${item._id}`}
+                    to={`/links/${item._id}`}
                     className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition"
                   >
                     <ExternalLink className="h-3.5 w-3.5" />
