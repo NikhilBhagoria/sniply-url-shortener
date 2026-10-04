@@ -6,7 +6,7 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     const raw = localStorage.getItem('user');
-    return raw ? JSON.parse(raw) : null;
+    try { return raw ? JSON.parse(raw) : null; } catch { return null; }
   });
   const [search, setSearch] = useState('');
 
@@ -32,6 +32,7 @@ export function AuthProvider({ children }) {
 
   const updateProfile = async (userData) => {
     const { data } = await api.put('/auth/me', userData);
+    if (data.token) localStorage.setItem('token', data.token);
     localStorage.setItem('user', JSON.stringify(data.user));
     setUser(data.user);
     return data.user;
