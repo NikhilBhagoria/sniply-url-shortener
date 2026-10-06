@@ -35,59 +35,19 @@ const sidebarLinks = [
   { label: 'Billing', to: '/settings?tab=billing', icon: CreditCard, isDummy: true },
   { label: 'Team', to: '/settings?tab=team', icon: Users2, isDummy: true },
   { label: 'Integrations', to: '/settings?tab=integrations', icon: Zap, isDummy: true },
+
 ];
 
 export default function DashboardLayout({ children }) {
   const { user, logout, search, setSearch } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const { darkMode, setDarkMode } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: 'Your link lnk.ly/xY7z9Q reached 1,000 clicks',
-      description: 'Traffic is up 18% compared to yesterday.',
-      time: '2m ago',
-      unread: true,
-      type: 'link',
-    },
-    {
-      id: 2,
-      title: 'New team member joined',
-      description: 'Maya Patel accepted the invite and joined Workspace.',
-      time: '1h ago',
-      unread: false,
-      type: 'user',
-    },
-    {
-      id: 3,
-      title: 'API rate limit at 80%',
-      description: 'Consider upgrading your plan to avoid throttling.',
-      time: '1d ago',
-      unread: true,
-      type: 'alert',
-    },
-    {
-      id: 4,
-      title: 'Weekly analytics report is ready',
-      description: 'Open the dashboard to review top-performing links.',
-      time: '2d ago',
-      unread: false,
-      type: 'chart',
-    },
-    {
-      id: 5,
-      title: 'Security scan completed',
-      description: 'No vulnerabilities detected in your workspace.',
-      time: '3d ago',
-      unread: false,
-      type: 'security',
-    },
-  ]);
+  const [notifications, setNotifications] = useState([]);
 
   const markAllAsRead = () => {
     setNotifications(notifications.map(n => ({ ...n, unread: false })));
@@ -146,8 +106,9 @@ export default function DashboardLayout({ children }) {
 
             return (
               <NavLink
+                onClick={e => { if (item.isDummy) e.preventDefault(); }}
                 key={item.label}
-                to={item.to}
+                to={item.to} aria-disabled={item.isDummy || undefined} title={item.isDummy ? 'Coming soon' : undefined}
                 className={`flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 group ${
                   isActive
                     ? 'bg-[#1e75ff] text-white shadow-md shadow-blue-100 dark:shadow-none'
@@ -163,18 +124,18 @@ export default function DashboardLayout({ children }) {
           })}
         </nav>
 
-        {/* Upgrade to Pro Card */}
+        {/* More coming soon Card */}
         <div className="mt-auto bg-[#f4f7ff] border border-blue-50 dark:bg-[#1e293b]/20 dark:border-slate-800 rounded-2xl p-5 relative overflow-hidden">
           <div className="absolute -right-3 -top-3 w-12 h-12 bg-blue-100 rounded-full opacity-30 pointer-events-none"></div>
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="h-4 w-4 text-[#1e75ff]" />
-            <span className="text-xs font-bold text-slate-900 dark:text-white">Upgrade to Pro</span>
+            <span className="text-xs font-bold text-slate-900 dark:text-white">More coming soon</span>
           </div>
           <p className="text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">
-            Unlock advanced analytics, custom domains, and team controls.
+            Custom domains and team controls are planned.
           </p>
-          <button className="mt-4 w-full rounded-xl bg-[#1e75ff] hover:bg-[#0a65ff] text-white py-2 text-xs font-semibold shadow-sm transition-colors duration-150">
-            Upgrade
+          <button disabled className="mt-4 w-full rounded-xl bg-[#1e75ff] hover:bg-[#0a65ff] text-white py-2 text-xs font-semibold shadow-sm transition-colors duration-150">
+            Coming soon
           </button>
         </div>
       </aside>
@@ -193,7 +154,7 @@ export default function DashboardLayout({ children }) {
                   <p className="text-[10px] uppercase font-semibold tracking-[0.2em] text-slate-400">URL Shortener</p>
                 </div>
               </div>
-              <button onClick={() => setMobileMenuOpen(false)} className="p-1 rounded-lg hover:bg-slate-100">
+              <button aria-label="Close navigation" onClick={() => setMobileMenuOpen(false)} className="p-1 rounded-lg hover:bg-slate-100">
                 <X className="h-5 w-5 text-slate-500" />
               </button>
             </div>
@@ -206,8 +167,8 @@ export default function DashboardLayout({ children }) {
                 return (
                   <NavLink
                     key={item.label}
-                    to={item.to}
-                    onClick={() => setMobileMenuOpen(false)}
+                    to={item.to} aria-disabled={item.isDummy || undefined} title={item.isDummy ? 'Coming soon' : undefined}
+                    onClick={e => { if (item.isDummy) e.preventDefault(); else setMobileMenuOpen(false); }}
                     className={`flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium transition ${
                       isActive ? 'bg-[#1e75ff] text-white' : 'text-slate-600 hover:bg-slate-50'
                     }`}
@@ -221,18 +182,7 @@ export default function DashboardLayout({ children }) {
               })}
             </nav>
 
-            <div className="mt-auto bg-[#f4f7ff] border border-blue-50 rounded-2xl p-5">
-              <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="h-4 w-4 text-[#1e75ff]" />
-                <span className="text-xs font-bold text-slate-900">Upgrade to Pro</span>
-              </div>
-              <p className="text-[11px] leading-relaxed text-slate-500">
-                Unlock advanced analytics, custom domains, and team controls.
-              </p>
-              <button className="mt-4 w-full rounded-xl bg-[#1e75ff] hover:bg-[#0a65ff] text-white py-2 text-xs font-semibold shadow-sm transition-colors">
-                Upgrade
-              </button>
-            </div>
+
           </aside>
         </div>
       )}
@@ -243,7 +193,7 @@ export default function DashboardLayout({ children }) {
         <header className="sticky top-0 z-30 h-20 bg-white dark:bg-[#0f172a] border-b border-slate-200 dark:border-slate-800/60 px-6 flex items-center justify-between">
           <div className="flex items-center gap-4 flex-1">
             {/* Mobile Hamburger menu toggle */}
-            <button onClick={() => setMobileMenuOpen(true)} className="lg:hidden p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800">
+            <button aria-label="Open navigation" onClick={() => setMobileMenuOpen(true)} className="lg:hidden p-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800">
               <Menu className="h-5 w-5 text-slate-600 dark:text-slate-300" />
             </button>
 
@@ -253,16 +203,16 @@ export default function DashboardLayout({ children }) {
               <input
                 type="text"
                 placeholder={getSearchPlaceholder()}
-                value={(location.pathname === '/' || location.pathname === '/shorten') ? (search || '') : ''}
+                value={(location.pathname === '/shorten' || location.pathname === '/qr-codes') ? (search || '') : ''}
                 onChange={(e) => {
                   if (location.pathname === '/' || location.pathname === '/shorten') {
                     setSearch(e.target.value);
                   }
                 }}
-                disabled={location.pathname !== '/' && location.pathname !== '/shorten'}
+                disabled={location.pathname !== '/shorten' && location.pathname !== '/qr-codes'}
                 className={`w-full rounded-full border border-slate-200 dark:border-slate-800 bg-[#f9fafc] dark:bg-[#1e293b] py-2.5 pl-11 pr-4 text-sm text-slate-700 dark:text-slate-100 outline-none transition-all duration-150 ${
-                  (location.pathname === '/' || location.pathname === '/shorten') 
-                    ? 'focus:border-blue-400 focus:bg-white dark:focus:bg-[#1e293b] focus:ring-4 focus:ring-blue-50 cursor-text' 
+                  (location.pathname === '/' || location.pathname === '/shorten')
+                    ? 'focus:border-blue-400 focus:bg-white dark:focus:bg-[#1e293b] focus:ring-4 focus:ring-blue-50 cursor-text'
                     : 'bg-slate-50 dark:bg-slate-800/40 cursor-not-allowed opacity-80'
                 }`}
               />
@@ -273,13 +223,13 @@ export default function DashboardLayout({ children }) {
           <div className="flex items-center gap-6">
             {/* Light/Dark mode switcher */}
             <div className="flex items-center bg-[#f0f2f5] dark:bg-[#1e293b] rounded-full p-1 border border-slate-100 dark:border-slate-800">
-              <button 
+              <button
                 onClick={() => setDarkMode(false)}
                 className={`p-1.5 rounded-full transition-all duration-150 ${!darkMode ? 'bg-white dark:bg-[#0f172a] text-[#1e75ff] shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
               >
                 <Sun className="h-3.5 w-3.5" />
               </button>
-              <button 
+              <button
                 onClick={() => setDarkMode(true)}
                 className={`p-1.5 rounded-full transition-all duration-150 ${darkMode ? 'bg-white dark:bg-[#0f172a] text-[#1e75ff] shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
               >
@@ -289,7 +239,7 @@ export default function DashboardLayout({ children }) {
 
             {/* Notifications Bell & Dropdown */}
             <div className="relative">
-              <button 
+              <button
                 onClick={() => { setNotificationsOpen(!notificationsOpen); setProfileOpen(false); }}
                 className="relative h-10 w-10 flex items-center justify-center bg-white text-slate-500 hover:text-slate-700 rounded-full border border-slate-200/80 shadow-sm hover:shadow transition-all duration-150"
               >
@@ -306,7 +256,7 @@ export default function DashboardLayout({ children }) {
                     {/* Header */}
                     <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                       <span className="text-sm font-bold text-slate-900 dark:text-white">Notifications</span>
-                      <button 
+                      <button
                         onClick={markAllAsRead}
                         className="text-xs font-bold text-[#1e75ff] hover:underline"
                       >
@@ -344,12 +294,12 @@ export default function DashboardLayout({ children }) {
                         }
 
                         return (
-                          <div 
+                          <div
                             key={n.id}
                             onClick={() => toggleRead(n.id)}
                             className={`flex gap-3 items-start p-3 rounded-2xl cursor-pointer transition-all duration-150 ${
-                              n.unread 
-                                ? 'bg-[#edf3ff] dark:bg-[#1e293b]/40 hover:bg-[#e1ecff] dark:hover:bg-[#1e293b]/60 border border-blue-100/40 dark:border-blue-900/30' 
+                              n.unread
+                                ? 'bg-[#edf3ff] dark:bg-[#1e293b]/40 hover:bg-[#e1ecff] dark:hover:bg-[#1e293b]/60 border border-blue-100/40 dark:border-blue-900/30'
                                 : 'hover:bg-slate-50 dark:hover:bg-slate-800/40 border border-transparent'
                             }`}
                           >
@@ -374,7 +324,7 @@ export default function DashboardLayout({ children }) {
                     {/* Footer */}
                     <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-center">
                       <button className="text-xs font-bold text-[#1e75ff] hover:underline">
-                        View all notifications
+                        No activity notifications yet
                       </button>
                     </div>
                   </div>
@@ -384,18 +334,14 @@ export default function DashboardLayout({ children }) {
 
             {/* Profile Dropdown */}
             <div className="relative">
-              <button 
+              <button
                 onClick={() => setProfileOpen(!profileOpen)}
                 className="flex items-center gap-3 p-1 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all duration-150"
               >
-                <img
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=256&auto=format&fit=crop"
-                  alt="Profile"
-                  className="h-10 w-10 rounded-full object-cover border-2 border-slate-100 dark:border-slate-800"
-                />
+                <span aria-hidden="true" className="h-10 w-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold">{user?.name?.slice(0, 1).toUpperCase() || 'S'}</span>
                 <div className="text-left hidden md:block">
-                  <h4 className="text-sm font-semibold text-slate-900 dark:text-white leading-none">{user?.name || 'Alex Rivera'}</h4>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5 block">Pro plan</span>
+                  <h4 className="text-sm font-semibold text-slate-900 dark:text-white leading-none">{user?.name || 'Account'}</h4>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-0.5 block">Personal account</span>
                 </div>
                 <ChevronDown className="h-4 w-4 text-slate-400 hidden md:block" />
               </button>
@@ -406,14 +352,14 @@ export default function DashboardLayout({ children }) {
                     <p className="text-xs text-slate-400">Signed in as</p>
                     <p className="text-sm font-medium text-slate-800 dark:text-white truncate">{user?.email}</p>
                   </div>
-                  <button 
+                  <button
                     onClick={() => { setProfileOpen(false); navigate('/settings'); }}
                     className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/45 flex items-center gap-2"
                   >
                     <Settings className="h-4 w-4 text-slate-400" />
                     <span>Settings</span>
                   </button>
-                  <button 
+                  <button
                     onClick={() => { setProfileOpen(false); handleLogout(); }}
                     className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 flex items-center gap-2 border-t border-slate-100 dark:border-slate-800"
                   >
