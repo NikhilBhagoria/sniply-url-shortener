@@ -14,7 +14,7 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     const url = err.config?.url || '';
-    const isPublicEndpoint = url.includes('/unlock') || url.includes('/auth/login') || url.includes('/auth/register');
+    const isPublicEndpoint = ['/unlock', '/auth/login', '/auth/register', '/auth/forgot-password', '/auth/reset-password', '/auth/verify-email'].some(path => url.startsWith(path));
     
     if (err.response?.status === 401 && !isPublicEndpoint) {
       localStorage.removeItem('token');
