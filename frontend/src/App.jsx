@@ -1,22 +1,24 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
 import DashboardLayout from './components/DashboardLayout';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import ShortenURL from './pages/ShortenURL';
-import LinkStats from './pages/LinkStats';
-import Settings from './pages/Settings';
-import Analytics from './pages/Analytics';
-import QRCodes from './pages/QRCodes';
-import Api from './pages/Api';
-import Unlock from './pages/Unlock';
-import Message from './pages/Message';
-import NotFound from './pages/NotFound';
-import InvalidLink from './pages/InvalidLink';
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const ShortenURL = lazy(() => import('./pages/ShortenURL'));
+const LinkStats = lazy(() => import('./pages/LinkStats'));
+const Settings = lazy(() => import('./pages/Settings'));
+const Analytics = lazy(() => import('./pages/Analytics'));
+const QRCodes = lazy(() => import('./pages/QRCodes'));
+const Api = lazy(() => import('./pages/Api'));
+const Unlock = lazy(() => import('./pages/Unlock'));
+const Message = lazy(() => import('./pages/Message'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const InvalidLink = lazy(() => import('./pages/InvalidLink'));
+const AccountRecovery = lazy(() => import('./pages/AccountRecovery'));
 
 export default function App() {
   return (
@@ -24,7 +26,10 @@ export default function App() {
       <AuthProvider>
         <BrowserRouter>
           <Navbar />
-          <Routes>
+          <Suspense fallback={<p className="p-6" role="status">Loading page…</p>}><Routes>
+            <Route path="/forgot-password" element={<AccountRecovery key="forgot" />} />
+            <Route path="/reset-password" element={<AccountRecovery key="reset" />} />
+            <Route path="/verify-email" element={<AccountRecovery key="verify" />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             
@@ -42,7 +47,7 @@ export default function App() {
             <Route path="/expired" element={<Message emoji="⌛" title="Link expired" text="This short link is no longer active." />} />
             <Route path="/404" element={<NotFound />} />
             <Route path="*" element={<NotFound />} />
-          </Routes>
+          </Routes></Suspense>
         </BrowserRouter>
       </AuthProvider>
     </ThemeProvider>
