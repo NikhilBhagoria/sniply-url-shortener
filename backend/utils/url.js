@@ -1,34 +1,12 @@
-const normalizeUrl = (value) => {
-  if (!value || typeof value !== 'string') return '';
-
-  const trimmed = value.trim();
-  if (!trimmed) return '';
-
+function normalizeUrl(value) {
+  if (typeof value !== 'string') return '';
+  const input = value.trim();
+  if (!input || input.length > 2048 || /[\s\x00-\x1f\\]/.test(input)) return '';
+  if (/^[a-z][a-z0-9+.-]*:/i.test(input) && !/^https?:\/\//i.test(input)) return '';
   try {
-    const normalized = /^https?:\/\//i.test(trimmed)
-      ? trimmed
-      : /^www\./i.test(trimmed)
-        ? `https://${trimmed}`
-        : `http://${trimmed}`;
-    const parsed = new URL(normalized);
-    return parsed.toString();
-  } catch {
-    return '';
-  }
-};
-
-const isValidHttpUrl = (value) => {
-  if (!value || typeof value !== 'string') return false;
-
-  const trimmed = value.trim();
-  if (!trimmed) return false;
-
-  try {
-    const parsed = new URL(trimmed.startsWith('http') ? trimmed : `http://${trimmed}`);
-    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
-  } catch {
-    return false;
-  }
-};
-
-module.exports = { normalizeUrl, isValidHttpUrl };
+    const url = new URL(/^https?:\/\//i.test(input) ? input : `http://${input}`);
+    if (!['http:', 'https:'].includes(url.protocol) || !url.hostname || url.username || url.password) return '';
+    return url.href.length <= 2048 ? url.href : '';
+  } catch { return ''; }
+}
+module.exports = { normalizeUrl, isValidHttpUrl: value => Boolean(normalizeUrl(value)) };
