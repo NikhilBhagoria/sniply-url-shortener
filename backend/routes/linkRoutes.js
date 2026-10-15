@@ -5,6 +5,8 @@ router.use(auth);
 router.get('/summary', c.summary);
 router.route('/').get(c.list).post(c.create);
 router.get('/:id/stats', c.stats);
+router.get('/:id/stats/export', c.exportCsv);
+router.patch('/:id', c.update);
 router.get('/:id/qr', c.qr);
 router.delete('/:id', c.remove);
 module.exports = router;
