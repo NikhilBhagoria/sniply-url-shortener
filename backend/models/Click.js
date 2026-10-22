@@ -8,8 +8,11 @@ const clickSchema = new mongoose.Schema(
     device: { type: String, default: 'Unknown' },   // Desktop / Mobile / Tablet
     browser: { type: String, default: 'Unknown' },
     os: { type: String, default: 'Unknown' },
+    visitorHash: { type: String, select: false },
+    linkAgeMs: { type: Number, min: 0 },
   },
   { timestamps: true }
 );
 
+clickSchema.index({ link: 1, createdAt: 1 });
 module.exports = mongoose.model('Click', clickSchema);
