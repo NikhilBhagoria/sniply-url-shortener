@@ -3,8 +3,10 @@ const bcrypt = require('bcryptjs');
 
 const linkSchema = new mongoose.Schema(
   {
+    isPaused: { type: Boolean, default: false },
+    history: [{ _id: false, at: Date, fields: [String] }],
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
-    originalUrl: { type: String, required: [true, 'URL is required'], trim: true },
+    originalUrl: { type: String, required: [true, 'URL is required'], trim: true, validate: { validator: require('../utils/url').isValidHttpUrl, message: 'Invalid HTTP(S) URL' } },
     slug: { type: String, required: true, unique: true, index: true },
     title: { type: String, trim: true },
     clicks: { type: Number, default: 0 },
@@ -12,7 +14,7 @@ const linkSchema = new mongoose.Schema(
     isProtected: { type: Boolean, default: false },
     password: { type: String, select: false, default: null },
   },
-  { timestamps: true }
+  { timestamps: true, optimisticConcurrency: true }
 );
 
 // hash password whenever it is set/changed
@@ -26,7 +28,7 @@ linkSchema.methods.matchPassword = function (candidate) {
 };
 
 linkSchema.methods.isExpired = function () {
-  return this.expiresAt && this.expiresAt.getTime() < Date.now();
+  return this.expiresAt && this.expiresAt.getTime() <= Date.now();
 };
 
 module.exports = mongoose.model('Link', linkSchema);
