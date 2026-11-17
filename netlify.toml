@@ -1,0 +1,13 @@
+[build]
+  base = "frontend"
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# React Router routes must also work on direct navigation and refresh.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
