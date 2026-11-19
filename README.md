@@ -1,140 +1,118 @@
 # Sniply — URL Shortener & Click Analytics
 
-A full-stack **MERN** URL shortener. Users shorten long URLs (with optional custom slugs), share them, and get a live analytics dashboard — total clicks, clicks over time, and breakdowns by device, browser, and referrer. **Analytics are generated automatically from real redirect traffic — no manual data entry.**
+React/Vite frontend, Express API, and MongoDB. No Redis dependency.
 
-## Tech Stack
+## Implemented
 
-- **Backend**: Node.js, Express, MongoDB (Mongoose), JWT auth, bcrypt, nanoid, ua-parser-js
-- **Frontend**: React (Vite), React Router DOM, Axios, Tailwind CSS, Recharts
-- **Tooling**: GitHub Actions CI
+- Registration/login; bcrypt passwords; versioned JWT sessions and owner-scoped link access.
+- Email verification, single-use password resets, and current-password-verified password changes.
+- Seven-character NanoID slugs and custom aliases. Database uniqueness and up to three generated-code save attempts.
+- HTTP(S) URL validation, reserved aliases, expiry, optional hashed link passwords.
+- Link editing, pause/resume, and last-50 change history (field names/time only).
+- Literal search, sort, status filters, and pagination.
+- Daily UTC analytics with zero-filled dates and CSV export. Default 30 dates; maximum 366.
+- QR design controls/download and a UTM builder in the shared link editor.
+- Named API keys with hashed storage, read/write scopes, expiry, revocation and last-used time.
+- MongoDB-backed per-key quota (60/minute). General/auth IP limits remain in-process.
+- Profile/company/timezone persistence; accessible native link dialogs; lazy-loaded pages.
+- Helmet, explicit CORS origins, body limits, generic server errors, request IDs and structured logs.
+- Local Docker Compose, MongoDB readiness checks, local Mailpit inbox, and CI test/build/container jobs.
 
-## Features
+Email verification is available from Settings; it does not gate link creation. Changing email requires the current password and clears verification. Password changes/resets and email changes invalidate prior JWTs and API keys. A successful email/profile update returns a new session token.
 
-- JWT auth (register / login), hashed passwords, protected routes, per-user data isolation
-- Shorten URLs with auto-generated or **custom slugs** (validated + uniqueness-checked)
-- Public redirect endpoint that logs each click **asynchronously** (device, browser, OS, referrer) without slowing the redirect
-- Per-link analytics via **MongoDB aggregation pipelines**: clicks-over-time timeline, device/browser/referrer breakdowns
-- Account-level summary (total links, total clicks, avg clicks/link, top links)
-- Link list with **keyword search** and **pagination**
-- **Link expiry** — optional expiration date; expired links route to a friendly page
-- **Password-protected links** — bcrypt-hashed passwords with a public unlock flow
-- **QR code** generation per link (downloadable PNG)
-- **Swagger / OpenAPI docs** served at `/api/docs`
-- **Dockerized** — one command spins up MongoDB + API + frontend via Docker Compose
-- Centralized error handling and input validation
+## Local development
 
-## How the analytics work
+Use Node **22.12+** (Node 22 is used in CI and Docker) and MongoDB.
 
-Every visit to `GET /:slug` does three things: looks up the link, atomically `$inc`s its click counter, and writes a `Click` event (parsed from the User-Agent + referrer). The dashboard then runs aggregation pipelines over those `Click` documents to build the charts. Because the data comes from actual traffic, the dashboard fills itself in as your links get used.
+1. Copy backend/.env.example to backend/.env. Set MONGO_URI and generate JWT_SECRET:
+   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+2. Run npm ci and npm run dev in backend.
+3. Copy frontend/.env.example to frontend/.env. Run npm ci and npm run dev in frontend.
+4. Configure SMTP to send account emails. For a local inbox, run Mailpit with SMTP on port 1025 and its UI on port 8025, or use Compose below.
 
-## Project Structure
+Never put secrets in VITE_* variables; frontend values are public.
 
-```
-sniply/
-├── backend/
-│   ├── config/db.js
-│   ├── models/            User.js, Link.js, Click.js
-│   ├── middleware/        auth.js, errorHandler.js
-│   ├── controllers/       authController.js, linkController.js, redirectController.js
-│   ├── routes/            authRoutes.js, linkRoutes.js
-│   ├── utils/token.js
-│   └── server.js
-├── frontend/
-│   └── src/
-│       ├── api/axios.js
-│       ├── context/AuthContext.jsx
-│       ├── components/     Navbar, ProtectedRoute, StatCard, BarBlock, TimelineChart
-│       └── pages/          Login, Register, Dashboard, LinkStats
-└── .github/workflows/ci.yml
-```
+## Local Docker stack
 
-## Getting Started
+Copy root .env.example to .env and set a generated JWT_SECRET, then run:
 
-### Prerequisites
-- Node.js 18+
-- A MongoDB connection string (free tier: [MongoDB Atlas](https://www.mongodb.com/atlas))
+    docker compose up --build --wait
 
-### 1. Backend
-```bash
-cd backend
-cp .env.example .env      # fill in MONGO_URI and JWT_SECRET
-npm install
-npm run dev               # http://localhost:5000
-```
+- Frontend: http://localhost:5173
+- API readiness: http://localhost:5000/api/ready
+- Swagger: http://localhost:5000/api/docs
+- Captured local emails: http://localhost:8025
 
-### 2. Frontend
-```bash
-cd frontend
-cp .env.example .env      # defaults point at the local backend
-npm install
-npm run dev               # http://localhost:5173
-```
+MongoDB is internal to Compose and persists in mongo-data. Mailpit captures local messages; it does not deliver them to real inboxes. Host ports bind to loopback. This Compose file is explicitly for local development, not a hardened public deployment.
 
-Register an account, shorten a URL, open the short link in a few browsers/devices, then click **Stats** to watch the analytics populate.
+Stop with docker compose down. Do not remove the named volume unless you intend to delete its database.
 
-## Run with Docker (one command)
+## API
 
-Requires Docker + Docker Compose. From the project root:
+Private base: /api/v1. Use Authorization: Bearer <JWT-or-API-key>.
+Account/key administration accepts session JWTs only.
 
-```bash
-docker compose up --build
-```
+| Method | Path | Purpose |
+|---|---|---|
+| POST | /auth/register, /auth/login | Account access |
+| GET / PUT | /auth/me | Read/update profile |
+| POST | /auth/forgot-password | Request reset email |
+| POST | /auth/reset-password | Consume reset token |
+| POST | /auth/request-verification | Request verification email |
+| POST | /auth/verify-email | Consume verification token |
+| POST | /auth/change-password | Verify current password and change it |
+| GET / POST | /keys | List metadata / create key |
+| DELETE | /keys/:id | Revoke key |
+| GET / POST | /links | Search/list / create |
+| PATCH / DELETE | /links/:id | Edit/pause / delete |
+| GET | /links/summary | Lifetime totals, active/paused counts |
+| GET | /links/:id/stats | Date-filtered events |
+| GET | /links/:id/stats/export | CSV daily counts |
+| GET | /links/:id/qr | PNG data URL |
+| POST | /unlock/:slug | Public password verification |
 
-- Frontend → http://localhost:5173
-- API → http://localhost:5000
-- API docs → http://localhost:5000/api/docs
-- MongoDB → localhost:27017 (data persisted in the `mongo-data` volume)
+Public GET /:slug lives outside /api/v1 and returns 302. Missing/expired/paused links redirect to a frontend explanation. Protected links redirect to an unlock form. Password protection gates the short link, not access to an already-known destination.
 
-No local Node or MongoDB install needed. Change `JWT_SECRET` in `docker-compose.yml` before deploying.
+Date parameters: from=2026-01-01&to=2026-01-31 (inclusive UTC dates).
+List parameters: search, page, limit, status=all|active|paused|expired, sort=createdAt|clicks|title, order=asc|desc.
 
-## API Docs (Swagger)
+## Tests
 
-Interactive OpenAPI documentation is served at **`/api/docs`** — try every endpoint from the browser. The spec lives in `backend/docs/openapi.js`.
+Backend:
 
-## API Reference
+    cd backend
+    npm ci
+    npm test
 
-Base URL: `/api/v1` (all `/links` and `/auth/me` routes require `Authorization: Bearer <token>`)
+These tests start a disposable real MongoDB using mongodb-memory-server; they do not connect to backend/.env or use the application's database. The first run downloads a MongoDB binary.
 
-| Method | Endpoint               | Auth | Description                                        |
-|--------|------------------------|------|----------------------------------------------------|
-| POST   | `/auth/register`       | No   | Create account, returns JWT                        |
-| POST   | `/auth/login`          | No   | Log in, returns JWT                                |
-| GET    | `/auth/me`             | Yes  | Current user                                       |
-| GET    | `/links`               | Yes  | List links (`search`, `page`, `limit`)             |
-| POST   | `/links`               | Yes  | Create short link (`originalUrl`, `title?`, `slug?`) |
-| DELETE | `/links/:id`           | Yes  | Delete a link and its click events                 |
-| GET    | `/links/:id/stats`     | Yes  | Aggregated analytics for one link                  |
-| GET    | `/links/summary`       | Yes  | Account-wide totals + top links                    |
-| GET    | `/links/:id/qr`        | Yes  | QR code (PNG data URL) for the short link          |
-| POST   | `/unlock/:slug`        | No   | Verify password on a protected link, return target |
-| GET    | `/:slug`               | No   | Public redirect (expiry + password aware)          |
+Email transport tests also start a loopback-only SMTP sink and verify actual Nodemailer delivery/rejection. They do not relay email to real recipients. Hosted SMTP/TLS delivery still needs provider-specific verification.
 
-### Example
-```bash
-# Register
-curl -X POST http://localhost:5000/api/v1/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Nikhil","email":"nikhil@example.com","password":"secret123"}'
+Browser tests (install backend dependencies first):
 
-# Shorten a URL (use the returned token)
-curl -X POST http://localhost:5000/api/v1/links \
-  -H "Authorization: Bearer <TOKEN>" \
-  -H "Content-Type: application/json" \
-  -d '{"originalUrl":"https://example.com/some/really/long/path","slug":"demo"}'
+    cd frontend
+    npm ci
+    npx playwright install chromium
+    npm run test:e2e
+    npm run build
 
-# Visit the short link (this records a click)
-curl -L http://localhost:5000/demo
-```
+Browser tests start isolated services on loopback ports 5055 and 5175, capture synthetic emails locally, and never contact an SMTP provider. The test-only outbox is in backend/tests/e2e-server.js; production app.js does not expose it.
 
-## Deployment Notes
+GitHub Actions runs backend tests, frontend build, Chromium flows, and a separate Compose smoke job.
 
-- **Backend**: Render or Railway (start command `npm start`, set all env vars). Set `BASE_URL` to the deployed backend origin.
-- **Frontend**: Vercel or Netlify. Set `VITE_API_URL` to `<backend>/api/v1` and `VITE_SHORT_BASE` to the backend origin.
-- Set `CLIENT_URL` in the backend env to the deployed frontend origin for CORS.
+## Configuration and deployment
 
-## Possible Next Steps
+See docs/DEPLOYMENT.md for origins, proxy/SMTP settings, deployment checks and backup/restore instructions.
 
-- Geo/IP-based location analytics
-- Redis caching on the redirect hot path
-- Rate limiting on auth and shorten endpoints
-- Unit/integration tests (Vitest + Supertest / React Testing Library)
+Old JWTs issued before the versioned-token change are intentionally rejected. Users must sign in again. Existing user records receive default tokenVersion/emailVerified values through Mongoose.
+
+## Known boundaries
+
+- Click event and counter writes remain independent/best effort; failures are logged. Counts are visits, not unique people.
+- Deletion of a link and its click events is not transactional; a concurrent analytics write can leave an orphan event.
+- General/auth IP limits are per-process. API-key quotas use MongoDB and are shared across instances.
+- JWTs remain in localStorage. No refresh-token or server-managed browser-cookie session system is claimed.
+- QR appearance settings are not persisted and arbitrary color combinations are not guaranteed scannable.
+- No geo analytics, teams, billing, custom domains or Redis caching.
+- Adding headers/validation is not a complete phishing or abuse-moderation system.
+- Historical credential rotation and remote Git-history remediation require account-owner action; source changes do not revoke credentials.
